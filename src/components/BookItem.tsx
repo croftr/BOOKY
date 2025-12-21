@@ -38,8 +38,11 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
                     <div className="flex items-start justify-between">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{book.title}</h3>
                     </div>
+                    <div className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                        <span className="-ml-1">{book.category === 'Factual' ? '📘' : book.category === 'Picture' ? '🖼️' : '📖'}</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-200">{book.category || 'Uncategorized'}</span>
+                    </div>
                     <p className="text-yellow-500 dark:text-yellow-400 font-medium">Rating: {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}</p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Category: <span className="font-medium text-gray-800 dark:text-gray-200">{book.category || 'Uncategorized'}</span></p>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                         Completion Order: {book.completionOrder ? <span className="font-mono text-blue-600 dark:text-blue-400">#{book.completionOrder}</span> : 'Not set'}
                     </p>
