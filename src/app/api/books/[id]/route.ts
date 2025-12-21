@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { kv } from '@vercel/kv';
 import { Book } from '@/types/book';
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'books.json');
+const BOOKS_KEY = 'books';
 
 async function readBooks(): Promise<Book[]> {
   try {
-    const data = await fs.readFile(DATA_FILE, 'utf-8');
-    return JSON.parse(data);
+    const books = await kv.get<Book[]>(BOOKS_KEY);
+    return books || [];
   } catch (error) {
+    console.error('Error reading books from KV:', error);
     return [];
   }
 }
 
 async function writeBooks(books: Book[]): Promise<void> {
-  const dataDir = path.join(process.cwd(), 'data');
   try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
+    await kv.set(BOOKS_KEY, books);
+  } catch (error) {
+    console.error('Error writing books to KV:', error);
+    throw error;
   }
-  await fs.writeFile(DATA_FILE, JSON.stringify(books, null, 2));
 }
 
 // GET single book by ID

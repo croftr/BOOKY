@@ -16,7 +16,9 @@
       "Bash(node parse-books-v2.js:*)",
       "Bash(node update-dates.js:*)",
       "Bash(node assign-images.js:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(npm install:*)",
+      "Bash(ls:*)"
     ]
   }
 }
