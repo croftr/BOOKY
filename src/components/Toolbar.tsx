@@ -13,6 +13,7 @@ interface ToolbarProps {
   onSortChange: (sort: SortOption) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  bookCount: number;
 }
 
 export default function Toolbar({
@@ -24,6 +25,7 @@ export default function Toolbar({
   onSortChange,
   searchQuery,
   onSearchChange,
+  bookCount,
 }: ToolbarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,13 @@ export default function Toolbar({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
       <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+        {/* Book Count */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
+          <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+            {bookCount} {bookCount === 1 ? 'book' : 'books'}
+          </span>
+        </div>
+
         {/* Search Box */}
         <div className="relative flex-1 min-w-0">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -81,9 +90,8 @@ export default function Toolbar({
                   onCategoryChange('');
                   setIsCategoryOpen(false);
                 }}
-                className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-900 dark:text-gray-100 ${
-                  !selectedCategory ? 'bg-blue-50 dark:bg-blue-900/30' : ''
-                }`}
+                className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-900 dark:text-gray-100 ${!selectedCategory ? 'bg-blue-50 dark:bg-blue-900/30' : ''
+                  }`}
               >
                 All Categories
               </button>
@@ -98,9 +106,8 @@ export default function Toolbar({
                       onCategoryChange(cat.value);
                       setIsCategoryOpen(false);
                     }}
-                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100 ${
-                      isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : ''
-                    }`}
+                    className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100 ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : ''
+                      }`}
                   >
                     <CategoryIcon size={16} className={cat.color} />
                     <span>{cat.label}</span>
@@ -130,16 +137,16 @@ export default function Toolbar({
 
         {/* Sort Section */}
         <div className="flex gap-2 items-center flex-1 min-w-0 lg:max-w-[220px]">
-          <ArrowUpDown size={18} className="text-gray-600 dark:text-gray-400 flex-shrink-0" />
+          {/* <ArrowUpDown size={18} className="text-gray-600 dark:text-gray-400 flex-shrink-0" /> */}
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
             className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="completion">Completion Order</option>
-            <option value="title">Title (A-Z)</option>
-            <option value="rating">Rating (High to Low)</option>
-            <option value="date">Date Completed</option>
+            <option value="completion">Sort by Completion Order</option>
+            <option value="title">Sort by  Title (A-Z)</option>
+            <option value="rating">Sort by  Rating (High to Low)</option>
+            <option value="date">Sort by Date Completed</option>
           </select>
         </div>
       </div>

@@ -167,6 +167,7 @@ export default function Home() {
             onSortChange={setSortBy}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            bookCount={filteredAndSortedBooks.length}
           />
         )}
 
