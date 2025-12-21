@@ -18,7 +18,14 @@
       "Bash(node assign-images.js:*)",
       "Bash(node -e:*)",
       "Bash(npm install:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(if [ ! -f .env.local ])",
+      "Bash(then echo \"Creating .env.local file...\")",
+      "Bash(else echo \"⚠️  .env.local already exists\")",
+      "Bash(fi)",
+      "Bash(curl:*)",
+      "Bash(npm run migrate:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

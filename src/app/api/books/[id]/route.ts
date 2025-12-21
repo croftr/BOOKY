@@ -1,24 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { getRedis } from '@/lib/redis';
 import { Book } from '@/types/book';
 
 const BOOKS_KEY = 'books';
 
 async function readBooks(): Promise<Book[]> {
   try {
-    const books = await kv.get<Book[]>(BOOKS_KEY);
-    return books || [];
+    const redis = getRedis();
+    const data = await redis.get(BOOKS_KEY);
+    if (!data) return [];
+    return JSON.parse(data) as Book[];
   } catch (error) {
-    console.error('Error reading books from KV:', error);
+    console.error('Error reading books from Redis:', error);
     return [];
   }
 }
 
 async function writeBooks(books: Book[]): Promise<void> {
   try {
-    await kv.set(BOOKS_KEY, books);
+    const redis = getRedis();
+    await redis.set(BOOKS_KEY, JSON.stringify(books));
   } catch (error) {
-    console.error('Error writing books to KV:', error);
+    console.error('Error writing books to Redis:', error);
     throw error;
   }
 }
