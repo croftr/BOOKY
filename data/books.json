@@ -4,321 +4,459 @@
     "category": "Factual",
     "dateCompleted": "",
     "review": "Agree Fraud",
-    "rating": 0
+    "rating": 5,
+    "image": "/uploads/1766325646128-418951220-image18.jpg",
+    "completionOrder": 1,
+    "id": "1766325354366-0"
   },
   {
     "title": "A Village in the Third Reich",
     "category": "Factual",
     "dateCompleted": "",
     "review": "Bloody nazis",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image2.jpg",
+    "completionOrder": 2,
+    "id": "1766325354366-1"
   },
   {
     "title": "The Nuremberg Interviews",
     "category": "Factual",
     "dateCompleted": "",
     "review": "Bloody nazis",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image3.jpg",
+    "completionOrder": 3,
+    "id": "1766325354366-2"
   },
   {
     "title": "The Dawn of everything",
     "category": "Factual",
     "dateCompleted": "2024-12-01",
     "review": "The book argues against the idea that human societies progressed in a simple, linear fashion from hunter-gatherers to complex states. Instead, it suggests that early humans had a much wider range of social and political arrangements than we typically assume.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image4.jpg",
+    "completionOrder": 4,
+    "id": "1766325354366-3"
   },
   {
     "title": "Thinking Fast and Slow",
     "category": "Factual",
     "dateCompleted": "",
     "review": "System 1 and System 2 thinking",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image5.jpg",
+    "completionOrder": 5,
+    "id": "1766325354366-4"
   },
   {
     "title": "The Natural History Book",
     "category": "Picture",
     "dateCompleted": "",
     "review": "This book is a work of art",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image6.jpg",
+    "completionOrder": 6,
+    "id": "1766325354366-5"
   },
   {
     "title": "Walking with Beasts",
     "category": "Picture",
     "dateCompleted": "",
     "review": "Was fun to read while watching walking with beasts series on TV",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image7.jpg",
+    "completionOrder": 7,
+    "id": "1766325354366-6"
   },
   {
     "title": "Historical Atlas of Ancient Civilizations",
     "category": "Factual",
     "dateCompleted": "",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image8.jpg",
+    "completionOrder": 8,
+    "id": "1766325354366-7"
   },
   {
     "title": "Sea People of the the Bronze Age Mediterranean",
     "category": "Factual",
     "dateCompleted": "",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image9.jpg",
+    "completionOrder": 9,
+    "id": "1766325354366-8"
   },
   {
     "title": "Money",
     "category": "Factual",
     "dateCompleted": "",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image10.jpg",
+    "completionOrder": 10,
+    "id": "1766325354366-9"
   },
   {
     "title": "After the Ice",
     "category": "Factual",
     "dateCompleted": "",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image11.jpg",
+    "completionOrder": 11,
+    "id": "1766325354366-10"
   },
   {
     "title": "Evolution The Human Story",
     "category": "Picture",
     "dateCompleted": "",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image12.jpg",
+    "completionOrder": 12,
+    "id": "1766325354366-11"
   },
   {
     "title": "The Missing Lynx",
     "category": "Factual",
     "dateCompleted": "2025-02-23",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image13.jpg",
+    "completionOrder": 13,
+    "id": "1766325354366-12"
   },
   {
     "title": "The Genetic Book of the Dead",
     "category": "Factual",
     "dateCompleted": "2025-03-01",
     "review": "Dawkins uses the terms \"vertical\" and \"horizontal\" to describe different modes of gene transmission. Vertical means the genes even of bacteria share the same incentives.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image14.jpg",
+    "completionOrder": 14,
+    "id": "1766325354366-13"
   },
   {
     "title": "The Witch",
     "category": "Factual",
     "dateCompleted": "2025-03-09",
     "review": "Looking for the origins of beliefs in witches and magic and fairies such as where did the belief that witches had familiar animals come from. No time given to the fact that any of these beliefs were based on anything real of course but that made it all pretty boring.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image15.jpg",
+    "completionOrder": 15,
+    "id": "1766325354366-14"
   },
   {
     "title": "The Bitcoin Standard",
     "category": "Factual",
     "dateCompleted": "",
     "review": "Money: Store of value, Medium of Exchange, Unit of Account, Standard of Deferred Payment. Gold backed money compared to government backed fiat money.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image16.png",
+    "completionOrder": 16,
+    "id": "1766325354366-15"
   },
   {
     "title": "Britain One Million Years of the Human Story",
     "category": "Factual",
     "dateCompleted": "",
     "review": "Fish use tools. Did the tool use of early humans such as hand axes used by neanderthals that were seen across continents indicate a genetic predisposition as fundamental as a bird building a nest?",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image17.jpg",
+    "completionOrder": 17,
+    "id": "1766325354366-16"
   },
   {
     "title": "The Rise and Reign of the Mammals",
     "category": "Factual",
     "dateCompleted": "2025-04-05",
     "review": "Dinosaurs kept mammals small but mammals kept dinosaurs large. 3 Bones in reptile jawbone broke away from the jaw and turned into tiny bones in mammal ears which improved hearing.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image18.jpg",
+    "completionOrder": 18,
+    "id": "1766325354366-17"
   },
   {
     "title": "Flaws of Nature",
     "category": "Factual",
     "dateCompleted": "2025-04-15",
     "review": "Vector vs pathogen. Vector is an external parasite (ectoparasite) and delivers the pathogen which is in an internal parasite (endoparasite). So mosquito is vector for malaria which are both different types of parasite.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image19.jpg",
+    "completionOrder": 19,
+    "id": "1766325354366-18"
   },
   {
     "title": "An Immense World",
     "category": "Factual",
     "dateCompleted": "2025-05-03",
     "review": "Infra red/sound (below wavelength/pitch humans can see/hear). Ultra violet/sound (above wavelength/pitch humans can see/hear)",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image20.jpg",
+    "completionOrder": 20,
+    "id": "1766325354366-19"
   },
   {
     "title": "Entangled Life",
     "category": "Picture",
     "dateCompleted": "2025-05-07",
     "review": "Plants create their own food, Animals put food in their bodies, Fungus put their bodies in their food. Hyphae: Tiny, thread-like filaments that form the main structural units of a fungus.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image21.jpg",
+    "completionOrder": 21,
+    "id": "1766325354366-20"
   },
   {
     "title": "Every Living Thing",
     "category": "Factual",
     "dateCompleted": "2025-05-17",
     "review": "Humbling. We know less than I thought. Surely genomic classification still makes sense though. I love Linneas and his obsession to group and classify.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image22.jpg",
+    "completionOrder": 22,
+    "id": "1766325354366-21"
   },
   {
     "title": "Endless Forms",
     "category": "Factual",
     "dateCompleted": "2025-05-29",
     "review": "Ants, bees, sawflies and wasps are all from the order Hymenoptera. Most wasps species are solitary, either parasitoid (lay eggs in or on host) or hunters. Not many species of social wasp but they may make up the most individuals.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image23.png",
+    "completionOrder": 23,
+    "id": "1766325354366-22"
   },
   {
     "title": "Who we are and how we got here",
     "category": "Factual",
     "dateCompleted": "2025-06-10",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image24.jpg",
+    "completionOrder": 24,
+    "id": "1766325354366-23"
   },
   {
     "title": "Groundbreakers",
     "category": "Factual",
     "dateCompleted": "2025-06-14",
     "review": "Have to go to the Forest of Dean!",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image25.jpg",
+    "completionOrder": 25,
+    "id": "1766325354366-24"
   },
   {
     "title": "Infinite Life",
     "category": "Factual",
     "dateCompleted": "2025-06-21",
     "review": "Dinosaurs > Theropods > birds. Marsupial babies > neonate. Amniotic egg for land animal eggs. Archosaurs > early ancestors to all modern crocodilians, pterosaurs and dinosaurs.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image26.jpg",
+    "completionOrder": 26,
+    "id": "1766325354366-25"
   },
   {
     "title": "The Light Eaters",
     "category": "Factual",
     "dateCompleted": "2025-07-01",
     "review": "Inspired me to buy some venus flytraps",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image27.jpg",
+    "completionOrder": 27,
+    "id": "1766325354366-26"
   },
   {
     "title": "The Military History Book",
     "category": "Picture",
     "dateCompleted": "2025-07-05",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image28.jpg",
+    "completionOrder": 28,
+    "id": "1766325354366-27"
   },
   {
     "title": "Entangled Life",
     "category": "Factual",
-    "dateCompleted": "2025-07-15",
+    "dateCompleted": "2025-05-07",
     "review": "Mycorrhizal (mico ryzal) (fungus root) fungal hyphe that combines with plant roots. The plant provides sugars created from photosynthesis to the fungi and the fungi provides nutrients and water to the plant.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image29.jpg",
+    "completionOrder": 29,
+    "id": "1766325354366-28"
   },
   {
     "title": "The Rise of Wolf 8",
     "category": "Factual",
     "dateCompleted": "2025-07-27",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image30.jpg",
+    "completionOrder": 30,
+    "id": "1766325354366-29"
   },
   {
     "title": "In the Kingdom of Gorillas",
     "category": "Factual",
     "dateCompleted": "2025-08-16",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image31.jpg",
+    "completionOrder": 31,
+    "id": "1766325354366-30"
   },
   {
     "title": "Animal Life",
     "category": "Picture",
     "dateCompleted": "2025-09-04",
     "review": "Best evolutionary relationships diagrams I have seen in any book",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image32.jpg",
+    "completionOrder": 32,
+    "id": "1766325354366-31"
   },
   {
     "title": "Determined",
     "category": "Factual",
     "dateCompleted": "2025-09-13",
     "review": "This book was brilliant but it didn't address some of what I consider to be the biggest questions to answer if we have no free will.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image33.jpg",
+    "completionOrder": 33,
+    "id": "1766325354366-32"
   },
   {
     "title": "Linked",
     "category": "Factual",
     "dateCompleted": "2025-09-23",
     "review": "Directed and weighted graphs. Small-world networks: The idea that even in very large networks, the path between any two nodes is surprisingly short.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image34.jpg",
+    "completionOrder": 34,
+    "id": "1766325354366-33"
   },
   {
     "title": "Habitats",
     "category": "Picture",
     "dateCompleted": "2025-10-11",
     "review": "Focused too much on plants not enough on animals but I learnt a lot about plant classification",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image35.jpg",
+    "completionOrder": 35,
+    "id": "1766325354366-34"
   },
   {
     "title": "The Secret Life of Equations",
     "category": "Factual",
     "dateCompleted": "2025-10-26",
     "review": "Didn't dive into doing the maths but it was a good overview.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image36.jpg",
+    "completionOrder": 36,
+    "id": "1766325354366-35"
   },
   {
     "title": "The first Signs",
     "category": "Factual",
     "dateCompleted": "2025-10-11",
     "review": "The abstract geometric symbols found alongside figurative cave paintings in Ice Age Europe represent a consistent, deliberate form of graphic communication and are the direct precursor to writing.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image37.jpg",
+    "completionOrder": 37,
+    "id": "1766325354366-36"
   },
   {
     "title": "The Earth",
     "category": "Factual",
     "dateCompleted": "2025-10-18",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image38.jpg",
+    "completionOrder": 38,
+    "id": "1766325354366-37"
   },
   {
     "title": "Primates",
     "category": "Picture",
     "dateCompleted": "2025-10-21",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image39.jpg",
+    "completionOrder": 39,
+    "id": "1766325354366-38"
   },
   {
     "title": "Stories of your Life and Others",
     "category": "Story",
     "dateCompleted": "2025-10-26",
     "review": "",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image40.jpg",
+    "completionOrder": 40,
+    "id": "1766325354366-39"
   },
   {
     "title": "The Science of Animals",
     "category": "Picture",
     "dateCompleted": "2025-11-29",
     "review": "Plankton, Nekton, and Benthos defines lifestyle so has nothing to do with evolutionary relationships. Giant Pandas are like a transitional species not yet fully evolved for their lifestyles.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image41.jpg",
+    "completionOrder": 41,
+    "id": "1766325354366-40"
   },
   {
     "title": "How Life Works",
     "category": "Factual",
     "dateCompleted": "2025-11-09",
     "review": "Genotype to phenotype is not a clear translation. Cells are more general purpose decision makers created by genomes in a way that allows them to solve problems as agents, like brains.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image42.jpg",
+    "completionOrder": 42,
+    "id": "1766325354366-41"
   },
   {
     "title": "Extraordinary Popular Delusions and the Madness of Crowds",
     "category": "Factual",
     "dateCompleted": "2025-11-23",
     "review": "If I had known it was written in 1850 I would not have bought it as I find the prose from that period hard going but considering that it's actually quite readable and surprised to see such rationality from that period.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image43.jpg",
+    "completionOrder": 43,
+    "id": "1766325354366-42"
   },
   {
     "title": "Songs of a Dead Dreamer and Grimscribe",
     "category": "Story",
     "dateCompleted": "2025-12-01",
     "review": "Was OK, didn't read them all. I don't think stories are for me.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image44.jpg",
+    "completionOrder": 44,
+    "id": "1766325354366-43"
   },
   {
     "title": "Becoming Earth",
     "category": "Factual",
     "dateCompleted": "2025-11-23",
     "review": "Four Spheres: Atmosphere, Hydrosphere, Lithosphere, Biosphere. Haber-Bosch process - Creating synthetic nitrogen fertilizer.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image45.jpg",
+    "completionOrder": 45,
+    "id": "1766325354366-44"
   },
   {
     "title": "Paleontology - An Illustrated history",
     "category": "Factual",
     "dateCompleted": "2025-12-17",
     "review": "Bit weird, the history of palaeontology rather than actual palaeontology.",
-    "rating": 0
+    "rating": 0,
+    "image": "/uploads/image46.jpg",
+    "completionOrder": 46,
+    "id": "1766325354366-45"
   }
 ]

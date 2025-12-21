@@ -6,9 +6,10 @@ import { uploadImage } from '@/lib/api';
 
 interface AddBookProps {
     onAddBook: (book: Book) => void;
+    currentBooks: Book[];
 }
 
-export default function AddBook({ onAddBook }: AddBookProps) {
+export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
@@ -40,6 +41,12 @@ export default function AddBook({ onAddBook }: AddBookProps) {
                 imageUrl = await uploadImage(imageFile);
             }
 
+            // Calculate next completion order
+            const maxOrder = currentBooks.length > 0
+                ? Math.max(...currentBooks.map(b => b.completionOrder || 0))
+                : 0;
+            const nextOrder = maxOrder + 1;
+
             const newBook: Book = {
                 id: Date.now().toString(),
                 title,
@@ -48,6 +55,7 @@ export default function AddBook({ onAddBook }: AddBookProps) {
                 review,
                 category,
                 dateCompleted,
+                completionOrder: nextOrder,
             };
 
             onAddBook(newBook);
@@ -127,13 +135,12 @@ export default function AddBook({ onAddBook }: AddBookProps) {
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date Completed</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date Completed (Optional)</label>
                 <input
                     type="date"
                     value={dateCompleted}
                     onChange={(e) => setDateCompleted(e.target.value)}
                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    required
                 />
             </div>
             <button

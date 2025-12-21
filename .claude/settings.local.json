@@ -6,7 +6,17 @@
       "Bash(tasklist:*)",
       "Bash(taskkill:*)",
       "Bash(powershell -Command \"Stop-Process -Id 17780 -Force\")",
-      "Bash(copy books-data.json databooks.json)"
+      "Bash(copy books-data.json databooks.json)",
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(pandoc:*)",
+      "Bash(node extract-docx.js:*)",
+      "Bash(node parse-books.js:*)",
+      "Bash(node parse-books-v2.js:*)",
+      "Bash(node update-dates.js:*)",
+      "Bash(node assign-images.js:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

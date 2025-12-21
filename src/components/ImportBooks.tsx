@@ -6,9 +6,10 @@ import { importBooksFromJSON, ImportBook } from '@/lib/importBooks';
 
 interface ImportBooksProps {
   onImport: (books: Book[]) => void;
+  currentBooks: Book[];
 }
 
-export default function ImportBooks({ onImport }: ImportBooksProps) {
+export default function ImportBooks({ onImport, currentBooks }: ImportBooksProps) {
   const [isImporting, setIsImporting] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,7 +20,14 @@ export default function ImportBooks({ onImport }: ImportBooksProps) {
       setIsImporting(true);
       const text = await file.text();
       const jsonData: ImportBook[] = JSON.parse(text);
-      const importedBooks = importBooksFromJSON(jsonData);
+
+      // Calculate next completion order
+      const maxOrder = currentBooks.length > 0
+        ? Math.max(...currentBooks.map(b => b.completionOrder || 0))
+        : 0;
+      const startOrder = maxOrder + 1;
+
+      const importedBooks = importBooksFromJSON(jsonData, startOrder);
       onImport(importedBooks);
       alert(`Successfully imported ${importedBooks.length} books!`);
       // Reset the input
