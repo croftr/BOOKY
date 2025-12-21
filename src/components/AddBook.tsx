@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
 import { uploadImage } from '@/lib/api';
 import CategorySelect from './CategorySelect';
+import StarRating from './StarRating';
 
 interface AddBookProps {
     onAddBook: (book: Book) => void;
@@ -111,19 +112,13 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
                 {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-48 object-cover rounded" />}
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Rating (0-5, 0 = Not Rated)</label>
-                <select
-                    value={rating}
-                    onChange={(e) => setRating(Number(e.target.value))}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                >
-                    <option value={0}>Not Rated</option>
-                    {[1, 2, 3, 4, 5].map((num) => (
-                        <option key={num} value={num}>
-                            {num} {'★'.repeat(num)}
-                        </option>
-                    ))}
-                </select>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Rating</label>
+                <StarRating
+                    rating={rating}
+                    onChange={setRating}
+                    size={24}
+                    showLabel
+                />
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Review</label>

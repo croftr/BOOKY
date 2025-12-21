@@ -75,6 +75,16 @@ export default function Home() {
     }
   };
 
+  const handleUpdateBook = async (updatedBook: Book) => {
+    try {
+      await updateBook(updatedBook.id, updatedBook);
+      setBooks(books.map(book => book.id === updatedBook.id ? updatedBook : book));
+    } catch (error) {
+      console.error('Failed to update book:', error);
+      alert('Failed to update book. Please try again.');
+    }
+  };
+
   const handleCancelEdit = () => {
     setEditingBook(null);
   };
@@ -163,7 +173,7 @@ export default function Home() {
         {isLoading ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading books...</div>
         ) : (
-          <BookList books={filteredAndSortedBooks} onDeleteBook={handleDeleteBook} onEditBook={handleEditBook} />
+          <BookList books={filteredAndSortedBooks} onDeleteBook={handleDeleteBook} onEditBook={handleEditBook} onUpdateBook={handleUpdateBook} />
         )}
       </div>
 

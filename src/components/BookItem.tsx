@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Book } from '@/types/book';
 import ConfirmModal from './ConfirmModal';
+import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
 
 interface BookItemProps {
     book: Book;
     onDelete: (id: string) => void;
     onEdit: (book: Book) => void;
+    onUpdate?: (book: Book) => void;
 }
 
-export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
+export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemProps) {
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Not set';
         const date = new Date(dateString);
@@ -32,6 +34,13 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
     const categoryConfig = getCategoryConfig(book.category);
     const CategoryIcon = categoryConfig?.icon;
 
+    const handleRatingChange = (newRating: number) => {
+        if (onUpdate) {
+            const updatedBook = { ...book, rating: newRating };
+            onUpdate(updatedBook);
+        }
+    };
+
     return (
         <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex gap-4 transition-shadow hover:shadow-lg h-full">
@@ -48,7 +57,15 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
                         )}
                         <span className="font-medium text-gray-800 dark:text-gray-200">{book.category || 'Uncategorized'}</span>
                     </div>
-                    <p className="text-yellow-500 dark:text-yellow-400 font-medium">Rating: {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}</p>
+                    <div className="mt-2">
+                        <StarRating
+                            rating={book.rating}
+                            onChange={handleRatingChange}
+                            readonly={!onUpdate}
+                            size={18}
+                            showLabel
+                        />
+                    </div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                         Completion Order: {book.completionOrder ? <span className="font-mono text-blue-600 dark:text-blue-400">#{book.completionOrder}</span> : 'Not set'}
                     </p>
