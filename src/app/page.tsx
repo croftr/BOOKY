@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import AddBook from '@/components/AddBook';
 import BookList from '@/components/BookList';
 import EditBook from '@/components/EditBook';
+import Toolbar, { SortOption } from '@/components/Toolbar';
 import { Book } from '@/types/book';
 import { fetchBooks, createBook, deleteBook as deleteBookApi, updateBook } from '@/lib/api';
 
@@ -14,6 +15,12 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [showAddBook, setShowAddBook] = useState(false);
+
+  // Filter and sort states
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedRating, setSelectedRating] = useState<number>(0);
+  const [sortBy, setSortBy] = useState<SortOption>('completion');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     loadBooks();
@@ -72,6 +79,51 @@ export default function Home() {
     setEditingBook(null);
   };
 
+  // Filter and sort books
+  const filteredAndSortedBooks = useMemo(() => {
+    let filtered = books;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(book =>
+        book.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(book => book.category === selectedCategory);
+    }
+
+    // Apply rating filter
+    if (selectedRating > 0) {
+      filtered = filtered.filter(book => book.rating >= selectedRating);
+    }
+
+    // Sort books
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'completion':
+        sorted.sort((a, b) => (a.completionOrder || 0) - (b.completionOrder || 0));
+        break;
+      case 'title':
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'rating':
+        sorted.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'date':
+        sorted.sort((a, b) => {
+          if (!a.dateCompleted) return 1;
+          if (!b.dateCompleted) return -1;
+          return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime();
+        });
+        break;
+    }
+
+    return sorted;
+  }, [books, searchQuery, selectedCategory, selectedRating, sortBy]);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
@@ -95,10 +147,23 @@ export default function Home() {
           />
         )}
 
+        {!isLoading && books.length > 0 && (
+          <Toolbar
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            selectedRating={selectedRating}
+            onRatingChange={setSelectedRating}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        )}
+
         {isLoading ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading books...</div>
         ) : (
-          <BookList books={[...books].sort((a, b) => (a.completionOrder || 0) - (b.completionOrder || 0))} onDeleteBook={handleDeleteBook} onEditBook={handleEditBook} />
+          <BookList books={filteredAndSortedBooks} onDeleteBook={handleDeleteBook} onEditBook={handleEditBook} />
         )}
       </div>
 

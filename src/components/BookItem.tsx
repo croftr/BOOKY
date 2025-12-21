@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Book } from '@/types/book';
 import ConfirmModal from './ConfirmModal';
+import { getCategoryConfig } from '@/config/categories';
 
 interface BookItemProps {
     book: Book;
@@ -28,6 +29,9 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    const categoryConfig = getCategoryConfig(book.category);
+    const CategoryIcon = categoryConfig?.icon;
+
     return (
         <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex gap-4 transition-shadow hover:shadow-lg h-full">
@@ -38,8 +42,10 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
                     <div className="flex items-start justify-between">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{book.title}</h3>
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                        <span className="-ml-1">{book.category === 'Factual' ? '📘' : book.category === 'Picture' ? '🖼️' : '📖'}</span>
+                    <div className="flex items-center gap-1.5 text-sm mt-1">
+                        {CategoryIcon && (
+                            <CategoryIcon size={16} className={categoryConfig.color} />
+                        )}
                         <span className="font-medium text-gray-800 dark:text-gray-200">{book.category || 'Uncategorized'}</span>
                     </div>
                     <p className="text-yellow-500 dark:text-yellow-400 font-medium">Rating: {'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}</p>

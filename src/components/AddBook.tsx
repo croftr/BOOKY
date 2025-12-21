@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
 import { uploadImage } from '@/lib/api';
+import CategorySelect from './CategorySelect';
 
 interface AddBookProps {
     onAddBook: (book: Book) => void;
@@ -16,7 +17,7 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
     const [imagePreview, setImagePreview] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
-    const [category, setCategory] = useState('Factual');
+    const [category, setCategory] = useState('');
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
     const [isUploading, setIsUploading] = useState(false);
@@ -136,16 +137,11 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
-                <select
+                <CategorySelect
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    onChange={setCategory}
                     required
-                >
-                    <option value="Factual">📘 Factual</option>
-                    <option value="Picture">🖼️ Picture</option>
-                    <option value="Story">📖 Story</option>
-                </select>
+                />
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date Completed (Optional)</label>

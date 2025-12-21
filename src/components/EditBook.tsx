@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
 import { uploadImage } from '@/lib/api';
+import CategorySelect from './CategorySelect';
 
 interface EditBookProps {
     book: Book;
@@ -131,12 +132,10 @@ export default function EditBook({ book, onSave, onCancel }: EditBookProps) {
 
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
-                            <input
-                                type="text"
+                            <CategorySelect
                                 value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                                placeholder="e.g., Fiction, Non-fiction, Science Fiction"
+                                onChange={setCategory}
+                                required
                             />
                         </div>
 
