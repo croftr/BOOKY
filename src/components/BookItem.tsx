@@ -30,7 +30,7 @@ export default function BookItem({ book, onDelete, onEdit }: BookItemProps) {
 
     return (
         <>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex gap-4 transition-shadow hover:shadow-lg">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex gap-4 transition-shadow hover:shadow-lg h-full">
                 {book.image && (
                     <img src={book.image} alt={book.title} className="w-24 h-36 object-cover rounded flex-shrink-0 shadow-sm" />
                 )}

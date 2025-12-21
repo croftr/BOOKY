@@ -13,7 +13,7 @@ export default function BookList({ books, onDeleteBook, onEditBook }: BookListPr
     }
 
     return (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {books.map((book) => (
                 <BookItem key={book.id} book={book} onDelete={onDeleteBook} onEdit={onEditBook} />
             ))}

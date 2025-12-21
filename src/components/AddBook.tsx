@@ -6,16 +6,17 @@ import { uploadImage } from '@/lib/api';
 
 interface AddBookProps {
     onAddBook: (book: Book) => void;
+    onCancel: () => void;
     currentBooks: Book[];
 }
 
-export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
+export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookProps) {
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState('Factual');
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
     const [isUploading, setIsUploading] = useState(false);
@@ -135,13 +136,16 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
-                <input
-                    type="text"
+                <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="e.g., Fiction, Non-fiction, Science Fiction"
-                />
+                    required
+                >
+                    <option value="Factual">📘 Factual</option>
+                    <option value="Picture">🖼️ Picture</option>
+                    <option value="Story">📖 Story</option>
+                </select>
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date Completed (Optional)</label>
@@ -163,13 +167,23 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
                     required
                 />
             </div>
-            <button
-                type="submit"
-                disabled={isUploading}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isUploading ? 'Adding Book...' : 'Add Book'}
-            </button>
+            <div className="flex justify-end gap-2">
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="flex-1 bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition-colors"
+                    disabled={isUploading}
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={isUploading}
+                    className="flex-1 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+                >
+                    {isUploading ? 'Adding...' : 'Add Book'}
+                </button>
+            </div>
         </form>
     );
 }
