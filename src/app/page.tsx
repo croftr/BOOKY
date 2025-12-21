@@ -31,8 +31,9 @@ export default function Home() {
 
   const handleAddBook = async (book: Book) => {
     try {
-      const newBook = await createBook(book);
-      setBooks([...books, newBook]);
+      await createBook(book);
+      // Reload books to capture any reordering done by the backend
+      loadBooks();
     } catch (error) {
       console.error('Failed to add book:', error);
       alert('Failed to add book. Please try again.');

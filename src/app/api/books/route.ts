@@ -45,6 +45,18 @@ export async function POST(request: NextRequest) {
   try {
     const newBook: Book = await request.json();
     const books = await readBooks();
+
+    // Check if we need to shift existing books
+    if (newBook.completionOrder) {
+      let needsSort = false;
+      books.forEach(book => {
+        if (book.completionOrder >= newBook.completionOrder) {
+          book.completionOrder += 1;
+          needsSort = true;
+        }
+      });
+    }
+
     books.push(newBook);
     await writeBooks(books);
     return NextResponse.json(newBook, { status: 201 });

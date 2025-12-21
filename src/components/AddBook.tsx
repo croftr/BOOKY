@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Book } from '@/types/book';
 import { uploadImage } from '@/lib/api';
 
@@ -17,7 +17,15 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
     const [dateCompleted, setDateCompleted] = useState('');
+    const [completionOrder, setCompletionOrder] = useState(1);
     const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        const maxOrder = currentBooks.length > 0
+            ? Math.max(...currentBooks.map(b => b.completionOrder || 0))
+            : 0;
+        setCompletionOrder(maxOrder + 1);
+    }, [currentBooks]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -41,12 +49,6 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
                 imageUrl = await uploadImage(imageFile);
             }
 
-            // Calculate next completion order
-            const maxOrder = currentBooks.length > 0
-                ? Math.max(...currentBooks.map(b => b.completionOrder || 0))
-                : 0;
-            const nextOrder = maxOrder + 1;
-
             const newBook: Book = {
                 id: Date.now().toString(),
                 title,
@@ -55,7 +57,7 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
                 review,
                 category,
                 dateCompleted,
-                completionOrder: nextOrder,
+                completionOrder,
             };
 
             onAddBook(newBook);
@@ -67,7 +69,14 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
             setRating(0);
             setReview('');
             setCategory('');
+            setReview('');
+            setCategory('');
             setDateCompleted('');
+            // Recalculate next order logic is handled by useEffect when currentBooks updates,
+            // but for immediate UI feedback we might want to increment locally too if we don't wait for props update
+            // However, since onAddBook likely triggers a refresh which updates props, we can rely on useEffect.
+            // But to be safe let's just increment local state for now.
+            setCompletionOrder(prev => prev + 1);
         } catch (error) {
             console.error('Error adding book:', error);
             alert('Failed to add book. Please try again.');
@@ -141,6 +150,17 @@ export default function AddBook({ onAddBook, currentBooks }: AddBookProps) {
                     value={dateCompleted}
                     onChange={(e) => setDateCompleted(e.target.value)}
                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Completion Order</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={completionOrder}
+                    onChange={(e) => setCompletionOrder(Number(e.target.value))}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    required
                 />
             </div>
             <button
