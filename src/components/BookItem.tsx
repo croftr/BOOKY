@@ -3,6 +3,8 @@ import { Book } from '@/types/book';
 import ConfirmModal from './ConfirmModal';
 import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface BookItemProps {
     book: Book;
@@ -44,14 +46,14 @@ export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemP
     return (
         <>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full">
-                <div className="flex flex-col sm:flex-row gap-4">
+
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{book.title}</h3>
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-2">
                     {book.image && (
-                        <img src={book.image} alt={book.title} className="w-24 h-36 object-cover rounded flex-shrink-0 shadow-sm" />
+                        <img src={book.image} alt={book.title} className="w-24 h-36 object-cover rounded shrink-0 shadow-sm" />
                     )}
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{book.title}</h3>
-                        </div>
                         <div className="flex items-center gap-1.5 text-sm mt-1">
                             {CategoryIcon && (
                                 <CategoryIcon size={16} className={categoryConfig.color} />
@@ -73,7 +75,13 @@ export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemP
                         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
                             Completed: {formatDate(book.dateCompleted)}
                         </p>
-                        {book.review && <p className="mt-3 text-gray-700 dark:text-gray-300 italic text-sm border-l-2 border-gray-200 dark:border-gray-700 pl-3">{book.review}</p>}
+                        {book.review && (
+                            <div className="mt-3 text-gray-700 dark:text-gray-300 text-sm border-l-2 border-gray-200 dark:border-gray-700 pl-3 markdown-content">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {book.review}
+                                </ReactMarkdown>
+                            </div>
+                        )}
                     </div>
                     <div className="flex sm:flex-col flex-row gap-2 sm:ml-auto">
                         <button

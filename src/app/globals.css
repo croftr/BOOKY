@@ -24,3 +24,150 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Markdown content styles */
+.markdown-content h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-content strong {
+  font-weight: bold;
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid rgba(0, 0, 0, 0.2);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-bottom: 0.75em;
+  font-style: italic;
+}
+
+.markdown-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: #2563eb;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0.75em;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5em;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .markdown-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .markdown-content pre {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .markdown-content blockquote {
+    border-left-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .markdown-content th {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .markdown-content a {
+    color: #60a5fa;
+  }
+
+  .markdown-content a:hover {
+    color: #93c5fd;
+  }
+}
