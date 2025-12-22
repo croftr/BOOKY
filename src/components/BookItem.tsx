@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Book } from '@/types/book';
-import ConfirmModal from './ConfirmModal';
 import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
@@ -8,12 +7,12 @@ import remarkGfm from 'remark-gfm';
 
 interface BookItemProps {
     book: Book;
-    onDelete: (id: string) => void;
-    onEdit: (book: Book) => void;
     onUpdate?: (book: Book) => void;
 }
 
-export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemProps) {
+export default function BookItem({ book, onUpdate }: BookItemProps) {
+    const router = useRouter();
+
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Not set';
         const date = new Date(dateString);
@@ -31,8 +30,6 @@ export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemP
         return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
     };
 
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
     const categoryConfig = getCategoryConfig(book.category);
     const CategoryIcon = categoryConfig?.icon;
 
@@ -44,8 +41,7 @@ export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemP
     };
 
     return (
-        <>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full">
 
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{book.title}</h3>
 
@@ -85,33 +81,14 @@ export default function BookItem({ book, onDelete, onEdit, onUpdate }: BookItemP
                     </div>
                     <div className="flex sm:flex-col flex-row gap-2 sm:ml-auto">
                         <button
-                            onClick={() => onEdit(book)}
+                            onClick={() => router.push(`/edit/${book.id}`)}
                             className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm flex-shrink-0 transition-colors shadow-sm"
                             aria-label="Edit book"
                         >
                             Edit
                         </button>
-                        <button
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm flex-shrink-0 transition-colors shadow-sm"
-                            aria-label="Delete book"
-                        >
-                            Delete
-                        </button>
                     </div>
                 </div>
-            </div>
-
-            <ConfirmModal
-                isOpen={showDeleteConfirm}
-                title="Delete Book"
-                message={`Are you sure you want to delete "${book.title}"? This action cannot be undone.`}
-                onConfirm={() => {
-                    onDelete(book.id);
-                    setShowDeleteConfirm(false);
-                }}
-                onCancel={() => setShowDeleteConfirm(false)}
-            />
-        </>
+        </div>
     );
 }
