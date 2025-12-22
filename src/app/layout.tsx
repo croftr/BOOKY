@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "My Book Tracker",
+  title: "Book Tracker",
   description: "Track and review books you've read",
   icons: {
     icon: '/favicon.svg',

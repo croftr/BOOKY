@@ -95,7 +95,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center mb-8 justify-center gap-2">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">My Book Tracker</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Book Tracker</h1>
 
           <button
             onClick={() => router.push('/create')}

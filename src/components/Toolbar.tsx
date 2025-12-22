@@ -124,7 +124,7 @@ export default function Toolbar({
             id="rating"
             value={selectedRating}
             onChange={(e) => onRatingChange(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value={0}>All Ratings</option>
             <option value={1}>1+ ⭐</option>
@@ -141,7 +141,7 @@ export default function Toolbar({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="completion">Sort by Completion Order</option>
             <option value="title">Sort by  Title (A-Z)</option>
