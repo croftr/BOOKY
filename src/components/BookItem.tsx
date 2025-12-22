@@ -42,30 +42,33 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative overflow-hidden flex flex-col">
             <button
                 onClick={() => router.push(`/edit/${book.id}`)}
-                className="absolute top-4 right-4 p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors cursor-pointer"
+                className="absolute top-3 right-3 p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors cursor-pointer z-10"
                 aria-label="Edit book"
                 title="Edit book"
             >
                 <Pencil size={18} />
             </button>
 
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 pr-10">{book.title}</h3>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <div className="flex gap-4 p-4">
                 {book.image && (
-                    <img src={book.image} alt={book.title} className="w-24 h-36 object-cover rounded shrink-0 shadow-sm" />
+                    <div className="shrink-0">
+                        <img src={book.image} alt={book.title} className="w-28 h-40 object-cover rounded shadow-md" />
+                    </div>
                 )}
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 text-sm mt-1">
+                <div className="flex-1 min-w-0 pr-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">{book.title}</h3>
+
+                    <div className="flex items-center gap-1.5 text-sm mb-2">
                         {CategoryIcon && (
                             <CategoryIcon size={16} className={categoryConfig.color} />
                         )}
                         <span className="font-medium text-gray-800 dark:text-gray-200">{book.category || 'Uncategorized'}</span>
                     </div>
-                    <div className="mt-2">
+
+                    <div className="mb-3">
                         <StarRating
                             rating={book.rating}
                             onChange={handleRatingChange}
@@ -74,21 +77,27 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
                             showLabel
                         />
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                        Completion Order: {book.completionOrder ? <span className="font-mono text-blue-600 dark:text-blue-400">#{book.completionOrder}</span> : 'Not set'}
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                        Completed: {formatDate(book.dateCompleted)}
-                    </p>
-                    {book.review && (
-                        <div className="mt-3 text-gray-700 dark:text-gray-300 text-sm border-l-2 border-gray-200 dark:border-gray-700 pl-3 markdown-content">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {book.review}
-                            </ReactMarkdown>
-                        </div>
-                    )}
+
+                    <div className="space-y-1 text-sm">
+                        <p className="text-gray-600 dark:text-gray-400">
+                            <span className="font-medium">Completed:</span> {formatDate(book.dateCompleted)}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            <span className="font-medium">Order:</span> {book.completionOrder ? <span className="font-mono text-blue-600 dark:text-blue-400">#{book.completionOrder}</span> : 'Not set'}
+                        </p>
+                    </div>
                 </div>
             </div>
+
+            {book.review && (
+                <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+                    <div className="text-gray-700 dark:text-gray-300 text-sm markdown-content">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {book.review}
+                        </ReactMarkdown>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
