@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
-import Toolbar, { SortOption } from '@/components/Toolbar';
+import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [sortBy, setSortBy] = useState<SortOption>('completion');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
@@ -69,27 +70,29 @@ export default function Home() {
 
     // Sort books
     const sorted = [...filtered];
+    const direction = sortDirection === 'asc' ? 1 : -1;
+
     switch (sortBy) {
       case 'completion':
-        sorted.sort((a, b) => (a.completionOrder || 0) - (b.completionOrder || 0));
+        sorted.sort((a, b) => direction * ((a.completionOrder || 0) - (b.completionOrder || 0)));
         break;
       case 'title':
-        sorted.sort((a, b) => a.title.localeCompare(b.title));
+        sorted.sort((a, b) => direction * a.title.localeCompare(b.title));
         break;
       case 'rating':
-        sorted.sort((a, b) => b.rating - a.rating);
+        sorted.sort((a, b) => direction * (b.rating - a.rating));
         break;
       case 'date':
         sorted.sort((a, b) => {
           if (!a.dateCompleted) return 1;
           if (!b.dateCompleted) return -1;
-          return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime();
+          return direction * (new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime());
         });
         break;
     }
 
     return sorted;
-  }, [books, searchQuery, selectedCategory, selectedRating, sortBy]);
+  }, [books, searchQuery, selectedCategory, selectedRating, sortBy, sortDirection]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
@@ -113,6 +116,8 @@ export default function Home() {
             onRatingChange={setSelectedRating}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            sortDirection={sortDirection}
+            onSortDirectionChange={setSortDirection}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             bookCount={filteredAndSortedBooks.length}
