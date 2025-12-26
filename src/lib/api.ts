@@ -7,6 +7,7 @@ export interface FetchBooksParams {
   rating?: number;
   minRating?: number;
   title?: string;
+  review?: string;
   dateCompleted?: string;
   dateFrom?: string;
   dateTo?: string;

@@ -59,6 +59,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Filter by review (case-insensitive partial match)
+    const review = searchParams.get('review');
+    if (review) {
+      books = books.filter(book =>
+        book.review.toLowerCase().includes(review.toLowerCase())
+      );
+    }
+
     // Filter by completion date (exact date or date range)
     const dateCompleted = searchParams.get('dateCompleted');
     const dateFrom = searchParams.get('dateFrom');
