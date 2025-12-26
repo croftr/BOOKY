@@ -31,7 +31,8 @@
       "Bash(git add:*)",
       "Bash(npm run migrate:blob:*)",
       "Bash(npm run build:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(xcopy:*)"
     ]
   }
 }
