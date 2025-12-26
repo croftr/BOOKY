@@ -136,6 +136,52 @@ server.addTool({
   },
 });
 
+// Tool to get book image
+server.addTool({
+  name: "get_book_image",
+  description: `Retrieves the cover image for a specific book from the user's reading tracker.
+  Returns the image URL or data URL for the book's cover image.
+  Use this when you need to display or access a book's cover image.`,
+  parameters: z.object({
+    id: z.string().describe("The unique ID of the book (required)"),
+  }),
+  execute: async (args) => {
+    try {
+      const { id } = args;
+
+      const response = await fetch(`${BASE_URL}/api/books/${id}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error(`Book with ID "${id}" not found`);
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const book = await response.json();
+
+      if (!book.image) {
+        return JSON.stringify({
+          success: true,
+          message: `Book "${book.title}" has no cover image`,
+          image: null,
+          title: book.title,
+        }, null, 2);
+      }
+
+      return JSON.stringify({
+        success: true,
+        message: `Retrieved cover image for "${book.title}"`,
+        image: book.image,
+        title: book.title,
+      }, null, 2);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Error getting book image: ${errorMessage}`);
+    }
+  },
+});
+
 // Tool to edit a book field
 server.addTool({
   name: "edit_book",
