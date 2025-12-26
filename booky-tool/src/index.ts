@@ -51,9 +51,9 @@ server.addTool({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const books = await response.json();
+      const data = await response.json();
 
-      return JSON.stringify(books, null, 2);
+      return JSON.stringify(data, null, 2);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Error fetching books: ${errorMessage}`);
@@ -89,7 +89,8 @@ server.addTool({
         if (!response.ok) {
           throw new Error(`Failed to fetch books for completion order calculation`);
         }
-        const books = await response.json();
+        const data = await response.json();
+        const books = data.items || [];
         const maxOrder = books.length > 0
           ? Math.max(...books.map((b: any) => b.completionOrder || 0))
           : 0;
@@ -139,26 +140,35 @@ server.addTool({
 // Tool to get book image
 server.addTool({
   name: "get_book_image",
-  description: `Retrieves the cover image for a specific book from the user's reading tracker.
+  description: `Retrieves the cover image for a specific book from the user's reading tracker by searching for the book title.
+  Supports partial title matching (case-insensitive). If multiple books match, returns the first match.
   Returns the image URL or data URL for the book's cover image.
   Use this when you need to display or access a book's cover image.`,
   parameters: z.object({
-    id: z.string().describe("The unique ID of the book (required)"),
+    title: z.string().describe("The book title or partial title to search for (required, case-insensitive)"),
   }),
   execute: async (args) => {
     try {
-      const { id } = args;
+      const { title } = args;
 
-      const response = await fetch(`${BASE_URL}/api/books/${id}`);
+      // Search for books matching the title
+      const queryParams = new URLSearchParams();
+      queryParams.append('title', title);
+
+      const response = await fetch(`${BASE_URL}/api/books?${queryParams.toString()}`);
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`Book with ID "${id}" not found`);
-        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const book = await response.json();
+      const data = await response.json();
+      const books = data.items || [];
+
+      if (!books || books.length === 0) {
+        throw new Error(`No books found matching title: "${title}"`);
+      }
+
+      const book = books[0];
 
       if (!book.image) {
         return JSON.stringify({
@@ -166,6 +176,7 @@ server.addTool({
           message: `Book "${book.title}" has no cover image`,
           image: null,
           title: book.title,
+          matchCount: data.total || books.length,
         }, null, 2);
       }
 
@@ -174,6 +185,7 @@ server.addTool({
         message: `Retrieved cover image for "${book.title}"`,
         image: book.image,
         title: book.title,
+        matchCount: data.total || books.length,
       }, null, 2);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -185,17 +197,38 @@ server.addTool({
 // Tool to edit a book field
 server.addTool({
   name: "edit_book",
-  description: `Edits a single field of a book the user has read in their personal reading tracker.
+  description: `Edits a single field of a book the user has read in their personal reading tracker by searching for the book title.
+  Supports partial title matching (case-insensitive). If multiple books match, edits the first match.
   Allows updating one field at a time: title, rating (0-5), review, category, dateCompleted (ISO format: YYYY-MM-DD), or completionOrder.
   Use this when the user wants to update or correct information about a book they've read.`,
   parameters: z.object({
-    id: z.string().describe("The unique ID of the book to edit (required)"),
+    bookTitle: z.string().describe("The book title or partial title to search for (required, case-insensitive)"),
     field: z.enum(["title", "rating", "review", "category", "dateCompleted", "completionOrder"]).describe("The field to edit (required)"),
     value: z.union([z.string(), z.number()]).describe("The new value for the field (required)"),
   }),
   execute: async (args) => {
     try {
-      const { id, field, value } = args;
+      const { bookTitle, field, value } = args;
+
+      // Search for books matching the title
+      const searchParams = new URLSearchParams();
+      searchParams.append('title', bookTitle);
+
+      const searchResponse = await fetch(`${BASE_URL}/api/books?${searchParams.toString()}`);
+
+      if (!searchResponse.ok) {
+        throw new Error(`HTTP error while searching! status: ${searchResponse.status}`);
+      }
+
+      const searchData = await searchResponse.json();
+      const books = searchData.items || [];
+
+      if (!books || books.length === 0) {
+        throw new Error(`No books found matching title: "${bookTitle}"`);
+      }
+
+      const book = books[0];
+      const bookId = book.id;
 
       // Validate and convert value based on field type
       let updatePayload: any = {};
@@ -213,7 +246,7 @@ server.addTool({
         updatePayload[field] = String(value);
       }
 
-      const response = await fetch(`${BASE_URL}/api/books/${id}`, {
+      const response = await fetch(`${BASE_URL}/api/books/${bookId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -223,7 +256,7 @@ server.addTool({
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error(`Book with ID "${id}" not found`);
+          throw new Error(`Book with ID "${bookId}" not found`);
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -233,6 +266,7 @@ server.addTool({
         success: true,
         message: `Successfully updated ${field} for "${updatedBook.title}"`,
         book: updatedBook,
+        matchCount: searchData.total || books.length,
       }, null, 2);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

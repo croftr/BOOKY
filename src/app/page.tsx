@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
+import { Pagination } from '@/components/Pagination';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
@@ -39,6 +40,12 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalBooks, setTotalBooks] = useState<number>(0);
+  const pageSize = 100;
+
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,26 +55,35 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Load books whenever filter or sort parameters change
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery]);
+
+  // Load books whenever filter, sort, or pagination parameters change
   // Only search by title if 3 or more characters
   useEffect(() => {
     loadBooks();
-  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery]);
+  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery, currentPage]);
 
   const loadBooks = async () => {
     try {
       setIsLoading(true);
-      const fetchedBooks = await fetchBooks({
+      const response = await fetchBooks({
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
         title: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
         sortBy: sortOptionToApiField(sortBy),
         sortOrder: sortDirection,
+        page: currentPage,
+        limit: pageSize,
       });
-      setBooks(fetchedBooks);
+      setBooks(response.items);
+      setTotalBooks(response.total);
+      setTotalPages(response.totalPages);
 
       // Track if any books exist at all (for initial load)
-      if (!hasAnyBooks && fetchedBooks.length > 0) {
+      if (!hasAnyBooks && response.total > 0) {
         setHasAnyBooks(true);
       }
     } catch (error) {
@@ -114,7 +130,7 @@ export default function Home() {
             onSortDirectionChange={setSortDirection}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            bookCount={books.length}
+            bookCount={totalBooks}
           />
         )}
 
@@ -127,7 +143,16 @@ export default function Home() {
             No books found matching your filters.
           </div>
         ) : (
-          <BookList books={books} onUpdateBook={handleUpdateBook} />
+          <>
+            <BookList books={books} onUpdateBook={handleUpdateBook} />
+            {totalBooks > pageSize && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

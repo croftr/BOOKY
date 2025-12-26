@@ -134,7 +134,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(books);
+    // Pagination
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const total = books.length;
+    const totalPages = Math.ceil(total / limit);
+    const skip = (page - 1) * limit;
+    const paginatedBooks = books.slice(skip, skip + limit);
+
+    return NextResponse.json({
+      items: paginatedBooks,
+      total,
+      page,
+      limit,
+      totalPages
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to read books' }, { status: 500 });
   }

@@ -34,8 +34,8 @@ export default function EditBookPage() {
     const loadBook = async () => {
         try {
             setIsLoading(true);
-            const books = await fetchBooks();
-            const foundBook = books.find(b => b.id === bookId);
+            const response = await fetchBooks();
+            const foundBook = response.items.find(b => b.id === bookId);
 
             if (foundBook) {
                 setBook(foundBook);

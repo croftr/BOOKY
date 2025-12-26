@@ -30,11 +30,11 @@ export default function CreateBookPage() {
     const loadBooks = async () => {
         try {
             setIsLoading(true);
-            const books = await fetchBooks();
-            setCurrentBooks(books);
+            const response = await fetchBooks();
+            setCurrentBooks(response.items);
 
-            const maxOrder = books.length > 0
-                ? Math.max(...books.map(b => b.completionOrder || 0))
+            const maxOrder = response.items.length > 0
+                ? Math.max(...response.items.map(b => b.completionOrder || 0))
                 : 0;
             setCompletionOrder(maxOrder + 1);
         } catch (error) {

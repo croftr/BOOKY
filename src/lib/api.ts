@@ -15,9 +15,19 @@ export interface FetchBooksParams {
   maxOrder?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
 }
 
-export async function fetchBooks(params?: FetchBooksParams): Promise<Book[]> {
+export interface PaginatedBooksResponse {
+  items: Book[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function fetchBooks(params?: FetchBooksParams): Promise<PaginatedBooksResponse> {
   const queryParams = new URLSearchParams();
 
   if (params) {
