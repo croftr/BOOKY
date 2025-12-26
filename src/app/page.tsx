@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
@@ -9,10 +9,27 @@ import { fetchBooks, updateBook } from '@/lib/api';
 
 import { CirclePlus } from 'lucide-react';
 
+// Map UI sort options to API sort fields
+const sortOptionToApiField = (sortOption: SortOption): string => {
+  switch (sortOption) {
+    case 'completion':
+      return 'completionOrder';
+    case 'title':
+      return 'title';
+    case 'rating':
+      return 'rating';
+    case 'date':
+      return 'dateCompleted';
+    default:
+      return 'completionOrder';
+  }
+};
+
 export default function Home() {
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasAnyBooks, setHasAnyBooks] = useState(false);
 
   // Filter and sort states
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -20,16 +37,39 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>('completion');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Load books whenever filter or sort parameters change
+  // Only search by title if 3 or more characters
   useEffect(() => {
     loadBooks();
-  }, []);
+  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery]);
 
   const loadBooks = async () => {
     try {
       setIsLoading(true);
-      const fetchedBooks = await fetchBooks();
+      const fetchedBooks = await fetchBooks({
+        category: selectedCategory || undefined,
+        minRating: selectedRating > 0 ? selectedRating : undefined,
+        title: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
+        sortBy: sortOptionToApiField(sortBy),
+        sortOrder: sortDirection,
+      });
       setBooks(fetchedBooks);
+
+      // Track if any books exist at all (for initial load)
+      if (!hasAnyBooks && fetchedBooks.length > 0) {
+        setHasAnyBooks(true);
+      }
     } catch (error) {
       console.error('Failed to load books:', error);
     } finally {
@@ -40,59 +80,13 @@ export default function Home() {
   const handleUpdateBook = async (updatedBook: Book) => {
     try {
       await updateBook(updatedBook.id, updatedBook);
-      setBooks(books.map(book => book.id === updatedBook.id ? updatedBook : book));
+      // Reload books to get fresh data from API
+      await loadBooks();
     } catch (error) {
       console.error('Failed to update book:', error);
       alert('Failed to update book. Please try again.');
     }
   };
-
-  // Filter and sort books
-  const filteredAndSortedBooks = useMemo(() => {
-    let filtered = books;
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(book =>
-        book.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply category filter
-    if (selectedCategory) {
-      filtered = filtered.filter(book => book.category === selectedCategory);
-    }
-
-    // Apply rating filter
-    if (selectedRating > 0) {
-      filtered = filtered.filter(book => book.rating >= selectedRating);
-    }
-
-    // Sort books
-    const sorted = [...filtered];
-    const direction = sortDirection === 'asc' ? 1 : -1;
-
-    switch (sortBy) {
-      case 'completion':
-        sorted.sort((a, b) => direction * ((a.completionOrder || 0) - (b.completionOrder || 0)));
-        break;
-      case 'title':
-        sorted.sort((a, b) => direction * a.title.localeCompare(b.title));
-        break;
-      case 'rating':
-        sorted.sort((a, b) => direction * (b.rating - a.rating));
-        break;
-      case 'date':
-        sorted.sort((a, b) => {
-          if (!a.dateCompleted) return 1;
-          if (!b.dateCompleted) return -1;
-          return direction * (new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime());
-        });
-        break;
-    }
-
-    return sorted;
-  }, [books, searchQuery, selectedCategory, selectedRating, sortBy, sortDirection]);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
@@ -108,7 +102,7 @@ export default function Home() {
           </button>
         </div>
 
-        {!isLoading && books.length > 0 && (
+        {!isLoading && hasAnyBooks && (
           <Toolbar
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -120,14 +114,20 @@ export default function Home() {
             onSortDirectionChange={setSortDirection}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            bookCount={filteredAndSortedBooks.length}
+            bookCount={books.length}
           />
         )}
 
         {isLoading ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading books...</div>
+        ) : books.length === 0 && !hasAnyBooks ? (
+          <BookList books={books} onUpdateBook={handleUpdateBook} />
+        ) : books.length === 0 ? (
+          <div className="text-center text-gray-600 dark:text-gray-400">
+            No books found matching your filters.
+          </div>
         ) : (
-          <BookList books={filteredAndSortedBooks} onUpdateBook={handleUpdateBook} />
+          <BookList books={books} onUpdateBook={handleUpdateBook} />
         )}
       </div>
     </div>

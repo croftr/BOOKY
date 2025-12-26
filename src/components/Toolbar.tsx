@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X } from 'lucide-react';
 import { CATEGORIES, getCategoryConfig } from '@/config/categories';
 
 export type SortOption = 'completion' | 'title' | 'rating' | 'date';
@@ -64,11 +64,21 @@ export default function Toolbar({
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search books by title..."
+            placeholder="Search books by title (min 3 chars)..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title="Clear search"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
 
         {/* Category Filter */}

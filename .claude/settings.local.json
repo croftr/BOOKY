@@ -30,7 +30,8 @@
       "Bash(npm run migrate:images:*)",
       "Bash(git add:*)",
       "Bash(npm run migrate:blob:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(mv:*)"
     ]
   }
 }

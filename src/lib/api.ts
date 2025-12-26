@@ -2,8 +2,36 @@ import { Book } from '@/types/book';
 
 const API_BASE = '/api';
 
-export async function fetchBooks(): Promise<Book[]> {
-  const response = await fetch(`${API_BASE}/books`);
+export interface FetchBooksParams {
+  category?: string;
+  rating?: number;
+  minRating?: number;
+  title?: string;
+  dateCompleted?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  completionOrder?: number;
+  minOrder?: number;
+  maxOrder?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export async function fetchBooks(params?: FetchBooksParams): Promise<Book[]> {
+  const queryParams = new URLSearchParams();
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, String(value));
+      }
+    });
+  }
+
+  const queryString = queryParams.toString();
+  const url = queryString ? `${API_BASE}/books?${queryString}` : `${API_BASE}/books`;
+
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch books');
   }
