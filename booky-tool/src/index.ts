@@ -15,13 +15,14 @@ server.addTool({
   name: "get_books",
   description: `Retrieves information about books the user has read from their personal reading tracker.
   Returns book details including title, category, rating (0-5), review notes, completion date, and completion order.
-  Supports filtering by category, rating, title search, date ranges, and sorting options.
+  Supports filtering by category, rating, title search, review content search, date ranges, and sorting options.
   Use this to answer questions about what books the user has read, their reviews, ratings, reading history, and preferences.`,
   parameters: z.object({
     category: z.string().optional().describe("Filter by book category (e.g., 'Factual', 'Story', 'Picture')"),
     rating: z.number().optional().describe("Filter by exact rating (0-5)"),
     minRating: z.number().optional().describe("Filter by minimum rating (0-5)"),
     title: z.string().optional().describe("Search books by title (partial match, case-insensitive, min 3 chars)"),
+    review: z.string().optional().describe("Search books by review content (partial match, case-insensitive)"),
     dateCompleted: z.string().optional().describe("Filter by exact completion date (ISO format: YYYY-MM-DD)"),
     dateFrom: z.string().optional().describe("Filter books completed on or after this date (ISO format: YYYY-MM-DD)"),
     dateTo: z.string().optional().describe("Filter books completed on or before this date (ISO format: YYYY-MM-DD)"),
