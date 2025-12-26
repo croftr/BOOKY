@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Book } from '@/types/book';
-import { fetchBooks, updateBook, deleteBook as deleteBookApi, uploadImage } from '@/lib/api';
+import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from '@/lib/api';
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -34,25 +34,19 @@ export default function EditBookPage() {
     const loadBook = async () => {
         try {
             setIsLoading(true);
-            const response = await fetchBooks();
-            const foundBook = response.items.find(b => b.id === bookId);
+            const foundBook = await fetchBook(bookId);
 
-            if (foundBook) {
-                setBook(foundBook);
-                setTitle(foundBook.title);
-                setImagePreview(foundBook.image);
-                setRating(foundBook.rating);
-                setReview(foundBook.review);
-                setCategory(foundBook.category);
-                setDateCompleted(foundBook.dateCompleted);
-                setCompletionOrder(foundBook.completionOrder || 1);
-            } else {
-                alert('Book not found');
-                router.push('/');
-            }
+            setBook(foundBook);
+            setTitle(foundBook.title);
+            setImagePreview(foundBook.image);
+            setRating(foundBook.rating);
+            setReview(foundBook.review);
+            setCategory(foundBook.category);
+            setDateCompleted(foundBook.dateCompleted);
+            setCompletionOrder(foundBook.completionOrder || 1);
         } catch (error) {
             console.error('Failed to load book:', error);
-            alert('Failed to load book');
+            alert('Book not found');
             router.push('/');
         } finally {
             setIsLoading(false);

@@ -48,6 +48,14 @@ export async function fetchBooks(params?: FetchBooksParams): Promise<PaginatedBo
   return response.json();
 }
 
+export async function fetchBook(id: string): Promise<Book> {
+  const response = await fetch(`${API_BASE}/books/${id}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch book');
+  }
+  return response.json();
+}
+
 export async function createBook(book: Book): Promise<Book> {
   const response = await fetch(`${API_BASE}/books`, {
     method: 'POST',
