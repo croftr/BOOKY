@@ -42,23 +42,17 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative overflow-hidden flex flex-col">
-            <button
-                onClick={() => router.push(`/edit/${book.id}`)}
-                className="absolute top-3 right-3 p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors cursor-pointer z-10"
-                aria-label="Edit book"
-                title="Edit book"
-            >
-                <Pencil size={18} />
-            </button>
-
+        <div
+            onClick={() => router.push(`/details/${book.id}`)}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative overflow-hidden flex flex-col cursor-pointer"
+        >
             <div className="flex gap-4 p-4">
                 {book.image && (
                     <div className="shrink-0">
                         <img src={book.image} alt={book.title} className="w-28 h-40 object-cover rounded shadow-md" />
                     </div>
                 )}
-                <div className="flex-1 min-w-0 pr-8">
+                <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">{book.title}</h3>
 
                     <div className="flex items-center gap-1.5 text-sm mb-2">
