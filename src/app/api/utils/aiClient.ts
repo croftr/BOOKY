@@ -72,7 +72,7 @@ Keep it conversational and engaging (2-3 paragraphs).`;
         contents: prompt,
     });
 
-    return response.text;
+    return response.text || "";
 }
 
 /**
@@ -86,7 +86,7 @@ export async function generateContent(model: string, contents: string): Promise<
         model,
         contents,
     });
-    return response.text;
+    return response.text || "";
 }
 
 interface BookSummary {
@@ -142,7 +142,7 @@ Keep the tone friendly and encouraging, as if you're a fellow book lover discuss
         contents: prompt,
     });
 
-    return response.text;
+    return response.text || "";
 }
 
 // Export the AI client for direct use if needed
