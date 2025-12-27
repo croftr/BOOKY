@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X, Sparkles } from 'lucide-react';
 import { CATEGORIES, getCategoryConfig } from '@/config/categories';
 
 export type SortOption = 'completion' | 'title' | 'rating' | 'date';
@@ -17,6 +17,7 @@ interface ToolbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   bookCount: number;
+  onSummaryClick?: () => void;
 }
 
 export default function Toolbar({
@@ -31,6 +32,7 @@ export default function Toolbar({
   searchQuery,
   onSearchChange,
   bookCount,
+  onSummaryClick,
 }: ToolbarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
@@ -58,6 +60,19 @@ export default function Toolbar({
             {bookCount} {bookCount === 1 ? 'book' : 'books'}
           </span>
         </div>
+
+        {/* AI Summary Button */}
+        {onSummaryClick && bookCount > 0 && (
+          <button
+            type="button"
+            onClick={onSummaryClick}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-md transition-all shadow-md hover:shadow-lg text-sm font-medium flex-shrink-0"
+            title="Generate AI summary of your library"
+          >
+            <Sparkles size={16} />
+            <span>AI Summary</span>
+          </button>
+        )}
 
         {/* Search Box */}
         <div className="relative flex-1 min-w-0">

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Book } from '@/types/book';
+import { Book, ConversationMessage } from '@/types/book';
 import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from '@/lib/api';
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
-import { Pencil, X, Save, Trash2, ArrowLeft } from 'lucide-react';
+import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -22,6 +22,10 @@ export default function BookDetailsPage() {
     const [isUploading, setIsUploading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [conversation, setConversation] = useState<ConversationMessage[]>([]);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [summaryError, setSummaryError] = useState<string>('');
+    const [userInput, setUserInput] = useState<string>('');
 
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -49,6 +53,7 @@ export default function BookDetailsPage() {
             setCategory(foundBook.category);
             setDateCompleted(foundBook.dateCompleted);
             setCompletionOrder(foundBook.completionOrder || 1);
+            setConversation(foundBook.conversation || []);
         } catch (error) {
             console.error('Failed to load book:', error);
             alert('Book not found');
@@ -117,6 +122,118 @@ export default function BookDetailsPage() {
         }
     };
 
+    const handleStartDiscussion = async () => {
+        if (!book) return;
+
+        setIsGeneratingSummary(true);
+        setSummaryError('');
+
+        try {
+            const response = await fetch(`/api/books/${book.id}/summary`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: book.title,
+                    category: book.category,
+                    review: book.review,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate response');
+            }
+
+            const data = await response.json();
+
+            const newMessage: ConversationMessage = {
+                role: 'assistant',
+                content: data.message,
+                timestamp: new Date().toISOString(),
+            };
+
+            const updatedConversation = [newMessage];
+            setConversation(updatedConversation);
+
+            // Update the book with the new conversation
+            const updatedBook: Book = {
+                ...book,
+                conversation: updatedConversation,
+            };
+            await updateBook(book.id, updatedBook);
+            setBook(updatedBook);
+        } catch (error) {
+            console.error('Error generating response:', error);
+            setSummaryError('Failed to generate response. Please try again.');
+        } finally {
+            setIsGeneratingSummary(false);
+        }
+    };
+
+    const handleSendMessage = async () => {
+        if (!book || !userInput.trim()) return;
+
+        setIsGeneratingSummary(true);
+        setSummaryError('');
+
+        const userMessage: ConversationMessage = {
+            role: 'user',
+            content: userInput.trim(),
+            timestamp: new Date().toISOString(),
+        };
+
+        const updatedConversation = [...conversation, userMessage];
+        setConversation(updatedConversation);
+        setUserInput('');
+
+        try {
+            const response = await fetch(`/api/books/${book.id}/summary`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: book.title,
+                    category: book.category,
+                    review: book.review,
+                    userMessage: userInput.trim(),
+                    conversationHistory: updatedConversation,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate response');
+            }
+
+            const data = await response.json();
+
+            const aiMessage: ConversationMessage = {
+                role: 'assistant',
+                content: data.message,
+                timestamp: new Date().toISOString(),
+            };
+
+            const finalConversation = [...updatedConversation, aiMessage];
+            setConversation(finalConversation);
+
+            // Update the book with the new conversation
+            const updatedBook: Book = {
+                ...book,
+                conversation: finalConversation,
+            };
+            await updateBook(book.id, updatedBook);
+            setBook(updatedBook);
+        } catch (error) {
+            console.error('Error generating response:', error);
+            setSummaryError('Failed to generate response. Please try again.');
+            // Remove the user message if AI failed
+            setConversation(conversation);
+        } finally {
+            setIsGeneratingSummary(false);
+        }
+    };
+
     const handleCancelEdit = () => {
         if (!book) return;
 
@@ -168,7 +285,7 @@ export default function BookDetailsPage() {
                 <div className="max-w-5xl mx-auto">
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden">
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 px-4 py-6 md:px-8">
+                        <div className="bg-linear-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 px-4 py-6 md:px-8">
                             <div className="flex items-start justify-between gap-4">
                                 <button
                                     onClick={() => router.push('/')}
@@ -244,7 +361,7 @@ export default function BookDetailsPage() {
                                             </h3>
                                             <StarRating
                                                 rating={book.rating}
-                                                onChange={() => {}}
+                                                onChange={() => { }}
                                                 readonly={true}
                                                 size={24}
                                                 showLabel
@@ -284,6 +401,81 @@ export default function BookDetailsPage() {
                                                 </div>
                                             </div>
                                         )}
+
+                                        {/* AI Discussion */}
+                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-16">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                                                    Book Discussion
+                                                </h3>
+                                                {conversation.length === 0 && (
+                                                    <button
+                                                        onClick={handleStartDiscussion}
+                                                        disabled={isGeneratingSummary}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
+                                                    >
+                                                        <Sparkles size={16} />
+                                                        {isGeneratingSummary ? 'Starting...' : 'Discuss Book'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {summaryError && (
+                                                <div className="text-red-500 dark:text-red-400 text-sm mb-3">
+                                                    {summaryError}
+                                                </div>
+                                            )}
+                                            {conversation.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {/* Conversation Messages */}
+                                                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                                                        {conversation.map((message, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={`p-4 rounded-lg ${message.role === 'assistant'
+                                                                    ? 'bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700'
+                                                                    : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700'
+                                                                    }`}
+                                                            >
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
+                                                                        {message.role === 'assistant' ? 'AI' : 'You'}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 text-sm">
+                                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                        {message.content}
+                                                                    </ReactMarkdown>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* User Input */}
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={userInput}
+                                                            onChange={(e) => setUserInput(e.target.value)}
+                                                            onKeyDown={(e) => e.key === 'Enter' && !isGeneratingSummary && handleSendMessage()}
+                                                            placeholder="Continue the discussion..."
+                                                            disabled={isGeneratingSummary}
+                                                            className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm disabled:opacity-50"
+                                                        />
+                                                        <button
+                                                            onClick={handleSendMessage}
+                                                            disabled={isGeneratingSummary || !userInput.trim()}
+                                                            className="px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
+                                                        >
+                                                            {isGeneratingSummary ? '...' : 'Send'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-500 dark:text-gray-400 italic text-sm">
+                                                    Click "Discuss Book" to start a conversation about this book.
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
