@@ -7,7 +7,7 @@ import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from 
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
-import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus, Book as BookIcon } from 'lucide-react';
+import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -48,6 +48,12 @@ export default function BookDetailsPage() {
     useEffect(() => {
         loadBook();
     }, [bookId]);
+
+    useEffect(() => {
+        if (book && !googleBooksInfo && !isLoadingGoogleBooks) {
+            handleFetchGoogleBooks();
+        }
+    }, [book]);
 
     const loadBook = async () => {
         try {
@@ -486,21 +492,9 @@ export default function BookDetailsPage() {
 
                                         {/* Google Books Information */}
                                         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                                    Google Books Information
-                                                </h3>
-                                                {!googleBooksInfo && (
-                                                    <button
-                                                        onClick={handleFetchGoogleBooks}
-                                                        disabled={isLoadingGoogleBooks}
-                                                        className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                                                    >
-                                                        <BookIcon size={14} />
-                                                        {isLoadingGoogleBooks ? 'Loading...' : 'Fetch Info'}
-                                                    </button>
-                                                )}
-                                            </div>
+                                            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                                                Google Books Information
+                                            </h3>
                                             {googleBooksInfo ? (
                                                 <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                                                     {googleBooksInfo.authors && googleBooksInfo.authors.length > 0 && (
