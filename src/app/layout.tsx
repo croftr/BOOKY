@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Track and review books you've read",
   icons: {
     icon: '/favicon.svg',
+    apple: '/favicon.svg',
+    shortcut: '/favicon.svg',
   },
 };
 
