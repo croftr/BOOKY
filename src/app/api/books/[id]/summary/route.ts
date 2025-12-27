@@ -3,9 +3,12 @@ import { generateBookDiscussion } from '@/app/api/utils/aiClient';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Await params in Next.js 15
+        await params;
+
         const { title, review, category, userMessage, conversationHistory } = await request.json();
 
         if (!title) {
