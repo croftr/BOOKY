@@ -7,7 +7,7 @@ import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from 
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
-import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus } from 'lucide-react';
+import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus, Eraser } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -250,6 +250,30 @@ export default function BookDetailsPage() {
             setConversation(conversation);
         } finally {
             setIsGeneratingSummary(false);
+        }
+    };
+
+    const handleClearHistory = async () => {
+        if (!book) return;
+
+        const confirmClear = window.confirm('Are you sure you want to clear the conversation history? This cannot be undone.');
+        if (!confirmClear) return;
+
+        try {
+            setConversation([]);
+
+            // Update the book to remove conversation
+            const updatedBook: Book = {
+                ...book,
+                conversation: [],
+            };
+            await updateBook(book.id, updatedBook);
+            setBook(updatedBook);
+        } catch (error) {
+            console.error('Error clearing conversation:', error);
+            alert('Failed to clear conversation. Please try again.');
+            // Restore conversation on error
+            setConversation(book.conversation || []);
         }
     };
 
@@ -660,22 +684,32 @@ export default function BookDetailsPage() {
                                                     </div>
 
                                                     {/* User Input */}
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="text"
-                                                            value={userInput}
-                                                            onChange={(e) => setUserInput(e.target.value)}
-                                                            onKeyDown={(e) => e.key === 'Enter' && !isGeneratingSummary && handleSendMessage()}
-                                                            placeholder="Continue the discussion..."
-                                                            disabled={isGeneratingSummary}
-                                                            className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm disabled:opacity-50"
-                                                        />
+                                                    <div className="space-y-2">
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={userInput}
+                                                                onChange={(e) => setUserInput(e.target.value)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && !isGeneratingSummary && handleSendMessage()}
+                                                                placeholder="Continue the discussion..."
+                                                                disabled={isGeneratingSummary}
+                                                                className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm disabled:opacity-50"
+                                                            />
+                                                            <button
+                                                                onClick={handleSendMessage}
+                                                                disabled={isGeneratingSummary || !userInput.trim()}
+                                                                className="px-4 py-3 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
+                                                            >
+                                                                {isGeneratingSummary ? '...' : 'Send'}
+                                                            </button>
+                                                        </div>
                                                         <button
-                                                            onClick={handleSendMessage}
-                                                            disabled={isGeneratingSummary || !userInput.trim()}
-                                                            className="px-4 py-3 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
+                                                            onClick={handleClearHistory}
+                                                            disabled={isGeneratingSummary}
+                                                            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                         >
-                                                            {isGeneratingSummary ? '...' : 'Send'}
+                                                            <Eraser size={14} />
+                                                            Clear History
                                                         </button>
                                                     </div>
                                                 </div>

@@ -4,7 +4,7 @@ import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Pencil } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 interface BookItemProps {
     book: Book;
@@ -41,11 +41,21 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
         }
     };
 
+    const hasOngoingDiscussion = book.conversation && book.conversation.length > 0;
+
     return (
         <div
             onClick={() => router.push(`/details/${book.id}`)}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative overflow-hidden flex flex-col cursor-pointer"
         >
+            {/* Discussion Indicator Badge */}
+            {hasOngoingDiscussion && (
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-linear-to-r from-purple-500 to-pink-500 text-white px-2.5 py-1 rounded-full shadow-lg">
+                    <MessageSquare size={14} />
+                    <span className="text-xs font-medium">Chat</span>
+                </div>
+            )}
+
             <div className="flex gap-4 p-4">
                 {book.image && (
                     <div className="shrink-0">

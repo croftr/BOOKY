@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
 import { Pagination } from '@/components/Pagination';
-import LibrarySummaryModal from '@/components/LibrarySummaryModal';
+import BookChatModal from '@/components/BookChatModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
@@ -47,10 +47,9 @@ export default function Home() {
   const [totalBooks, setTotalBooks] = useState<number>(0);
   const pageSize = 100;
 
-  // Library summary states
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [librarySummary, setLibrarySummary] = useState('');
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  // Chat modal state
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
 
   // Debounce search query
   useEffect(() => {
@@ -110,43 +109,18 @@ export default function Home() {
     }
   };
 
-  const handleGenerateSummary = async () => {
-    setShowSummaryModal(true);
-    setIsGeneratingSummary(true);
-    setLibrarySummary('');
-
+  const handleOpenChat = async () => {
     try {
-      // Fetch all books without pagination for summary
+      // Fetch all books without pagination for chat
       const response = await fetchBooks({
         limit: 1000, // Get all books
       });
 
-      const booksForSummary = response.items.map((book) => ({
-        title: book.title,
-        category: book.category,
-        rating: book.rating,
-        review: book.review,
-      }));
-
-      const summaryResponse = await fetch('/api/library/summary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ books: booksForSummary }),
-      });
-
-      if (!summaryResponse.ok) {
-        throw new Error('Failed to generate summary');
-      }
-
-      const data = await summaryResponse.json();
-      setLibrarySummary(data.summary);
+      setAllBooks(response.items);
+      setShowChatModal(true);
     } catch (error) {
-      console.error('Error generating summary:', error);
-      setLibrarySummary('Failed to generate summary. Please try again.');
-    } finally {
-      setIsGeneratingSummary(false);
+      console.error('Error loading books for chat:', error);
+      alert('Failed to load books. Please try again.');
     }
   };
 
@@ -177,7 +151,7 @@ export default function Home() {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             bookCount={totalBooks}
-            onSummaryClick={handleGenerateSummary}
+            onSummaryClick={handleOpenChat}
           />
         )}
 
@@ -202,12 +176,11 @@ export default function Home() {
           </>
         )}
 
-        {/* Library Summary Modal */}
-        <LibrarySummaryModal
-          isOpen={showSummaryModal}
-          onClose={() => setShowSummaryModal(false)}
-          summary={librarySummary}
-          isGenerating={isGeneratingSummary}
+        {/* Book Chat Modal */}
+        <BookChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          books={allBooks}
         />
       </div>
     </div>
