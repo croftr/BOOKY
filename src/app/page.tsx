@@ -9,7 +9,7 @@ import BookChatModal from '@/components/BookChatModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
-import { CirclePlus } from 'lucide-react';
+import { CirclePlus, Download } from 'lucide-react';
 
 // Map UI sort options to API sort fields
 const sortOptionToApiField = (sortOption: SortOption): string => {
@@ -124,6 +124,42 @@ export default function Home() {
     }
   };
 
+  const handleExportData = async () => {
+    try {
+      // Fetch all books without pagination
+      const response = await fetchBooks({
+        limit: 1000, // Get all books
+      });
+
+      // Create export data with timestamp
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        version: '1.0',
+        totalBooks: response.total,
+        books: response.items,
+      };
+
+      // Convert to JSON string with pretty formatting
+      const jsonString = JSON.stringify(exportData, null, 2);
+
+      // Create blob and download
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `book-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      alert(`Successfully exported ${response.total} books!`);
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Failed to export data. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
@@ -133,9 +169,20 @@ export default function Home() {
           <button
             onClick={() => router.push('/create')}
             className="p-2 bg-blue-600 text-white rounded-4xl font-medium shadow-md hover:bg-blue-700 transition-colors cursor-pointer"
+            title="Add new book"
           >
             <CirclePlus size={20} />
           </button>
+
+          {totalBooks > 0 && (
+            <button
+              onClick={handleExportData}
+              className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
+              title="Export all data"
+            >
+              <Download size={20} />
+            </button>
+          )}
         </div>
 
         {!isLoading && hasAnyBooks && (
