@@ -32,7 +32,9 @@
       "Bash(npm run migrate:blob:*)",
       "Bash(npm run build:*)",
       "Bash(mv:*)",
-      "Bash(xcopy:*)"
+      "Bash(xcopy:*)",
+      "Bash(node fix-completion-order.js)",
+      "Bash(npx tsx:*)"
     ]
   }
 }

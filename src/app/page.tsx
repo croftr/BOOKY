@@ -6,10 +6,11 @@ import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
 import { Pagination } from '@/components/Pagination';
 import BookChatModal from '@/components/BookChatModal';
+import ImportDataModal from '@/components/ImportDataModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
-import { CirclePlus, Download } from 'lucide-react';
+import { CirclePlus, Download, Upload } from 'lucide-react';
 
 // Map UI sort options to API sort fields
 const sortOptionToApiField = (sortOption: SortOption): string => {
@@ -50,6 +51,9 @@ export default function Home() {
   // Chat modal state
   const [showChatModal, setShowChatModal] = useState(false);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
+
+  // Import modal state
+  const [showImportModal, setShowImportModal] = useState(false);
 
   // Debounce search query
   useEffect(() => {
@@ -160,6 +164,12 @@ export default function Home() {
     }
   };
 
+  const handleImportComplete = async () => {
+    // Reload books after import
+    await loadBooks();
+    setShowImportModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
@@ -175,13 +185,23 @@ export default function Home() {
           </button>
 
           {totalBooks > 0 && (
-            <button
-              onClick={handleExportData}
-              className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
-              title="Export all data"
-            >
-              <Download size={20} />
-            </button>
+            <>
+              <button
+                onClick={handleExportData}
+                className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
+                title="Export all data"
+              >
+                <Download size={20} />
+              </button>
+
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="p-2 bg-purple-600 text-white rounded-4xl font-medium shadow-md hover:bg-purple-700 transition-colors cursor-pointer"
+                title="Import data"
+              >
+                <Upload size={20} />
+              </button>
+            </>
           )}
         </div>
 
@@ -228,6 +248,13 @@ export default function Home() {
           isOpen={showChatModal}
           onClose={() => setShowChatModal(false)}
           books={allBooks}
+        />
+
+        {/* Import Data Modal */}
+        <ImportDataModal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onImportComplete={handleImportComplete}
         />
       </div>
     </div>
