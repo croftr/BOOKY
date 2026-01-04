@@ -173,36 +173,51 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center mb-8 justify-center gap-2">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">Book Tracker</h1>
+        <div className="relative flex items-center mb-6 justify-between">
+          <div className="flex items-center gap-2">
+            <img
+              src="/favicon.svg"
+              alt="Book Tracker"
+              className="w-10 h-10"
+            />
+            <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-300 sm:hidden">
+              Book Tracker
+            </h1>
+          </div>
 
-          <button
-            onClick={() => router.push('/create')}
-            className="p-2 bg-blue-600 text-white rounded-4xl font-medium shadow-md hover:bg-blue-700 transition-colors cursor-pointer"
-            title="Add new book"
-          >
-            <CirclePlus size={20} />
-          </button>
+          <h1 className="hidden sm:block absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold text-gray-700 dark:text-gray-300">
+            Book Tracker
+          </h1>
 
-          {totalBooks > 0 && (
-            <>
-              <button
-                onClick={handleExportData}
-                className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
-                title="Export all data"
-              >
-                <Download size={20} />
-              </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push('/create')}
+              className="p-2 bg-blue-600 text-white rounded-4xl font-medium shadow-md hover:bg-blue-700 transition-colors cursor-pointer"
+              title="Add new book"
+            >
+              <CirclePlus size={20} />
+            </button>
 
-              <button
-                onClick={() => setShowImportModal(true)}
-                className="p-2 bg-purple-600 text-white rounded-4xl font-medium shadow-md hover:bg-purple-700 transition-colors cursor-pointer"
-                title="Import data"
-              >
-                <Upload size={20} />
-              </button>
-            </>
-          )}
+            {totalBooks > 0 && (
+              <>
+                <button
+                  onClick={handleExportData}
+                  className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
+                  title="Export all data"
+                >
+                  <Download size={20} />
+                </button>
+
+                <button
+                  onClick={() => setShowImportModal(true)}
+                  className="p-2 bg-purple-600 text-white rounded-4xl font-medium shadow-md hover:bg-purple-700 transition-colors cursor-pointer"
+                  title="Import data"
+                >
+                  <Upload size={20} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {!isLoading && hasAnyBooks && (

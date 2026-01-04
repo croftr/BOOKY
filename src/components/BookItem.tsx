@@ -4,7 +4,8 @@ import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface BookItemProps {
     book: Book;
@@ -13,6 +14,7 @@ interface BookItemProps {
 
 export default function BookItem({ book, onUpdate }: BookItemProps) {
     const router = useRouter();
+    const [isReviewExpanded, setIsReviewExpanded] = useState(false);
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Not set';
@@ -94,12 +96,35 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
             </div>
 
             {book.review && (
-                <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-                    <div className="text-gray-700 dark:text-gray-300 text-sm markdown-content">
+                <div className="border-t border-gray-200 dark:border-gray-700 mt-auto">
+                    <div
+                        className={`px-4 py-3 text-gray-700 dark:text-gray-300 text-sm markdown-content transition-all ${
+                            isReviewExpanded ? 'max-h-none' : 'max-h-24 overflow-hidden'
+                        }`}
+                    >
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {book.review}
                         </ReactMarkdown>
                     </div>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsReviewExpanded(!isReviewExpanded);
+                        }}
+                        className="w-full px-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1 border-t border-gray-100 dark:border-gray-700"
+                    >
+                        {isReviewExpanded ? (
+                            <>
+                                <ChevronUp size={14} />
+                                <span>Show less</span>
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown size={14} />
+                                <span>Show more</span>
+                            </>
+                        )}
+                    </button>
                 </div>
             )}
         </div>
