@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Book } from '@/types/book';
 import { fetchBooks, createBook, uploadImage } from '@/lib/api';
+import { compressImage } from '@/lib/imageCompression';
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
+import CoverPicker from '@/components/CoverPicker';
 
 export default function CreateBookPage() {
     const router = useRouter();
@@ -17,6 +19,7 @@ export default function CreateBookPage() {
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
+    const [selectedCoverUrl, setSelectedCoverUrl] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
@@ -30,7 +33,8 @@ export default function CreateBookPage() {
     const loadBooks = async () => {
         try {
             setIsLoading(true);
-            const response = await fetchBooks();
+            // Fetch all books to get accurate max completion order
+            const response = await fetchBooks({ limit: 1000 });
             setCurrentBooks(response.items);
 
             const maxOrder = response.items.length > 0
@@ -44,16 +48,20 @@ export default function CreateBookPage() {
         }
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
+    const handleSelectCover = (url: string) => {
+        setSelectedCoverUrl(url);
+        setImageFile(null);
+        setImagePreview(url);
+    };
+
+    const handleUploadFile = (file: File) => {
+        setImageFile(file);
+        setSelectedCoverUrl('');
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -62,8 +70,14 @@ export default function CreateBookPage() {
 
         try {
             let imageUrl = '';
-            if (imageFile) {
-                imageUrl = await uploadImage(imageFile);
+
+            // Use selected cover URL if available, otherwise upload file
+            if (selectedCoverUrl) {
+                imageUrl = selectedCoverUrl;
+            } else if (imageFile) {
+                // Compress image before uploading
+                const compressedFile = await compressImage(imageFile);
+                imageUrl = await uploadImage(compressedFile);
             }
 
             const newBook: Book = {
@@ -124,14 +138,13 @@ export default function CreateBookPage() {
                         </div>
 
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Book Cover Image</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600"
+                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Book Cover Image</label>
+                            <CoverPicker
+                                bookTitle={title}
+                                onSelectCover={handleSelectCover}
+                                onUploadFile={handleUploadFile}
+                                currentPreview={imagePreview}
                             />
-                            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-48 object-cover rounded" />}
                         </div>
 
                         <div className="mb-4">

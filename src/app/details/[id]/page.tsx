@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Book, ConversationMessage, ExternalLink, GoogleBooksInfo } from '@/types/book';
 import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from '@/lib/api';
+import { compressImage } from '@/lib/imageCompression';
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
+import CoverPicker from '@/components/CoverPicker';
 import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus, Eraser } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
@@ -30,6 +32,7 @@ export default function BookDetailsPage() {
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
+    const [selectedCoverUrl, setSelectedCoverUrl] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
@@ -80,16 +83,20 @@ export default function BookDetailsPage() {
         }
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
+    const handleSelectCover = (url: string) => {
+        setSelectedCoverUrl(url);
+        setImageFile(null);
+        setImagePreview(url);
+    };
+
+    const handleUploadFile = (file: File) => {
+        setImageFile(file);
+        setSelectedCoverUrl('');
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -100,8 +107,14 @@ export default function BookDetailsPage() {
 
         try {
             let imageUrl = book.image;
-            if (imageFile) {
-                imageUrl = await uploadImage(imageFile);
+
+            // Use selected cover URL if available, otherwise upload file
+            if (selectedCoverUrl) {
+                imageUrl = selectedCoverUrl;
+            } else if (imageFile) {
+                // Compress image before uploading
+                const compressedFile = await compressImage(imageFile);
+                imageUrl = await uploadImage(compressedFile);
             }
 
             const updatedBook: Book = {
@@ -725,31 +738,21 @@ export default function BookDetailsPage() {
                         ) : (
                             // Edit mode
                             <form onSubmit={handleSubmit} className="p-6 md:p-8">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    {/* Left column - Image */}
-                                    <div className="md:col-span-1 space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                                                Book Cover Image
-                                            </label>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleImageChange}
-                                                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-600 file:cursor-pointer"
-                                            />
-                                        </div>
-                                        {imagePreview && (
-                                            <img
-                                                src={imagePreview}
-                                                alt="Preview"
-                                                className="w-full max-w-sm mx-auto rounded-lg shadow-lg object-cover"
-                                            />
-                                        )}
-                                    </div>
+                                {/* Book Cover - Full Width */}
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                                        Book Cover Image
+                                    </label>
+                                    <CoverPicker
+                                        bookTitle={title}
+                                        onSelectCover={handleSelectCover}
+                                        onUploadFile={handleUploadFile}
+                                        currentPreview={imagePreview}
+                                    />
+                                </div>
 
-                                    {/* Right column - Form fields */}
-                                    <div className="md:col-span-2 space-y-4">
+                                {/* Form fields */}
+                                <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                                 Title
@@ -940,7 +943,6 @@ export default function BookDetailsPage() {
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
                                 </div>
 
                                 {/* Action buttons */}

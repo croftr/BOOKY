@@ -130,3 +130,31 @@ export async function bulkCreateBooks(books: Book[]): Promise<BulkImportResponse
   }
   return response.json();
 }
+
+export interface BookCover {
+  id: number;
+  url: string;
+  title: string;
+  authors: string;
+  publishedDate?: string;
+  sizes: {
+    thumbnail?: string;
+    small?: string;
+    medium?: string;
+    large?: string;
+  };
+}
+
+export interface BookCoversResponse {
+  found: boolean;
+  covers: BookCover[];
+  total: number;
+}
+
+export async function fetchBookCovers(query: string): Promise<BookCoversResponse> {
+  const response = await fetch(`${API_BASE}/books/covers?q=${encodeURIComponent(query)}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch book covers');
+  }
+  return response.json();
+}
