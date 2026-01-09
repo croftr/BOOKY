@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Book } from '@/types/book';
-import { createBook, fetchBooks } from '@/lib/api';
+import { bulkCreateBooks, fetchBooks } from '@/lib/api';
 import { validateImportData, parseImportFile, ValidationResult, ImportBook } from '@/lib/importValidation';
 import { X, Upload, FileText, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 
@@ -73,16 +73,13 @@ export default function ImportDataModal({ isOpen, onClose, onImportComplete }: I
         0
       );
 
-      // Import valid books
-      for (let i = 0; i < validationResult.valid.length; i++) {
-        const bookToImport = validationResult.valid[i];
-
+      // Prepare all books for bulk import
+      const booksToImport: Book[] = validationResult.valid.map((bookToImport, i) => {
         // Always assign new completionOrder values
-        // Books without completionOrder or with non-conflicting values get next available number
         const completionOrder = maxCompletionOrder + i + 1;
 
         // Create a new book with required fields
-        const newBook: Book = {
+        return {
           id: bookToImport.id || `${Date.now()}-${i}`,
           title: bookToImport.title!,
           category: bookToImport.category!,
@@ -96,10 +93,11 @@ export default function ImportDataModal({ isOpen, onClose, onImportComplete }: I
           externalLinks: bookToImport.externalLinks ?? [],
           googleBooksInfo: bookToImport.googleBooksInfo,
         };
+      });
 
-        await createBook(newBook);
-        setImportProgress({ current: i + 1, total: validationResult.valid.length });
-      }
+      // Bulk import all books at once
+      await bulkCreateBooks(booksToImport);
+      setImportProgress({ current: booksToImport.length, total: booksToImport.length });
 
       setStep('complete');
     } catch (err) {

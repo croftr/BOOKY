@@ -110,3 +110,23 @@ export async function uploadImage(file: File): Promise<string> {
   const data = await response.json();
   return data.url;
 }
+
+export interface BulkImportResponse {
+  message: string;
+  imported: number;
+  total: number;
+}
+
+export async function bulkCreateBooks(books: Book[]): Promise<BulkImportResponse> {
+  const response = await fetch(`${API_BASE}/books/bulk`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(books),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to bulk import books');
+  }
+  return response.json();
+}
