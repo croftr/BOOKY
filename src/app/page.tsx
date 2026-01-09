@@ -51,6 +51,7 @@ export default function Home() {
   // Chat modal state
   const [showChatModal, setShowChatModal] = useState(false);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
+  const [allBooksLoaded, setAllBooksLoaded] = useState(false);
 
   // Import modal state
   const [showImportModal, setShowImportModal] = useState(false);
@@ -113,34 +114,41 @@ export default function Home() {
     }
   };
 
+  const loadAllBooks = async () => {
+    if (!allBooksLoaded) {
+      try {
+        const response = await fetchBooks({
+          limit: 1000, // Get all books
+        });
+        setAllBooks(response.items);
+        setAllBooksLoaded(true);
+      } catch (error) {
+        console.error('Error loading all books:', error);
+        throw error;
+      }
+    }
+  };
+
   const handleOpenChat = async () => {
     try {
-      // Fetch all books without pagination for chat
-      const response = await fetchBooks({
-        limit: 1000, // Get all books
-      });
-
-      setAllBooks(response.items);
+      await loadAllBooks();
       setShowChatModal(true);
     } catch (error) {
-      console.error('Error loading books for chat:', error);
       alert('Failed to load books. Please try again.');
     }
   };
 
   const handleExportData = async () => {
     try {
-      // Fetch all books without pagination
-      const response = await fetchBooks({
-        limit: 1000, // Get all books
-      });
+      // Use cached books if available, otherwise fetch
+      await loadAllBooks();
 
       // Create export data with timestamp
       const exportData = {
         exportDate: new Date().toISOString(),
         version: '1.0',
-        totalBooks: response.total,
-        books: response.items,
+        totalBooks: allBooks.length,
+        books: allBooks,
       };
 
       // Convert to JSON string with pretty formatting
@@ -157,7 +165,7 @@ export default function Home() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      alert(`Successfully exported ${response.total} books!`);
+      alert(`Successfully exported ${allBooks.length} books!`);
     } catch (error) {
       console.error('Error exporting data:', error);
       alert('Failed to export data. Please try again.');
@@ -165,7 +173,8 @@ export default function Home() {
   };
 
   const handleImportComplete = async () => {
-    // Reload books after import
+    // Reload books after import and invalidate cache
+    setAllBooksLoaded(false);
     await loadBooks();
     setShowImportModal(false);
   };
