@@ -10,7 +10,7 @@ import ImportDataModal from '@/components/ImportDataModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
-import { CirclePlus, Download, Upload } from 'lucide-react';
+import { CirclePlus, Download, Upload, BarChart3 } from 'lucide-react';
 
 // Map UI sort options to API sort fields
 const sortOptionToApiField = (sortOption: SortOption): string => {
@@ -209,6 +209,14 @@ export default function Home() {
 
             {totalBooks > 0 && (
               <>
+                <button
+                  onClick={() => router.push('/stats')}
+                  className="p-2 bg-orange-600 text-white rounded-4xl font-medium shadow-md hover:bg-orange-700 transition-colors cursor-pointer"
+                  title="View statistics"
+                >
+                  <BarChart3 size={20} />
+                </button>
+
                 <button
                   onClick={handleExportData}
                   className="p-2 bg-green-600 text-white rounded-4xl font-medium shadow-md hover:bg-green-700 transition-colors cursor-pointer"
