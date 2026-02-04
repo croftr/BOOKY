@@ -8,6 +8,7 @@ import { compressImage } from '@/lib/imageCompression';
 import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import CoverPicker from '@/components/CoverPicker';
+import Toggle from '@/components/Toggle';
 
 export default function CreateBookPage() {
     const router = useRouter();
@@ -23,6 +24,7 @@ export default function CreateBookPage() {
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
+    const [currentlyReading, setCurrentlyReading] = useState(false);
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
 
@@ -87,6 +89,7 @@ export default function CreateBookPage() {
                 rating,
                 review,
                 category,
+                currentlyReading,
                 dateCompleted,
                 completionOrder,
             };
@@ -174,6 +177,14 @@ export default function CreateBookPage() {
                                 value={category}
                                 onChange={setCategory}
                                 required
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <Toggle
+                                label="Currently Reading"
+                                checked={currentlyReading}
+                                onChange={setCurrentlyReading}
                             />
                         </div>
 

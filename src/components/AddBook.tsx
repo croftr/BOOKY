@@ -5,6 +5,7 @@ import { Book } from '@/types/book';
 import { uploadImage } from '@/lib/api';
 import CategorySelect from './CategorySelect';
 import StarRating from './StarRating';
+import Toggle from './Toggle';
 
 interface AddBookProps {
     onAddBook: (book: Book) => void;
@@ -19,6 +20,7 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
+    const [currentlyReading, setCurrentlyReading] = useState(false);
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
     const [isUploading, setIsUploading] = useState(false);
@@ -59,6 +61,7 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
                 rating,
                 review,
                 category,
+                currentlyReading,
                 dateCompleted,
                 completionOrder,
             };
@@ -74,6 +77,7 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
             setCategory('');
             setReview('');
             setCategory('');
+            setCurrentlyReading(false);
             setDateCompleted('');
             // Recalculate next order logic is handled by useEffect when currentBooks updates,
             // but for immediate UI feedback we might want to increment locally too if we don't wait for props update
@@ -138,6 +142,15 @@ export default function AddBook({ onAddBook, onCancel, currentBooks }: AddBookPr
                     required
                 />
             </div>
+
+            <div className="mb-4">
+                <Toggle
+                    label="Currently Reading"
+                    checked={currentlyReading}
+                    onChange={setCurrentlyReading}
+                />
+            </div>
+
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date Completed (Optional)</label>
                 <input

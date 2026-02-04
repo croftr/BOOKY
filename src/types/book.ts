@@ -29,6 +29,7 @@ export interface Book {
     rating: number; // 0-5 (0 = not rated)
     review: string;
     category: string;
+    currentlyReading?: boolean;
     dateCompleted: string; // ISO string (optional - can be empty)
     completionOrder: number; // Order in which books were completed
     aiSummary?: string; // AI-generated summary (optional)
