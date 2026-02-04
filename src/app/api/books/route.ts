@@ -102,6 +102,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Filter by currently reading status
+    const currentlyReading = searchParams.get('currentlyReading');
+    if (currentlyReading !== null) {
+      const isCurrentlyReading = currentlyReading === 'true';
+      books = books.filter(book =>
+        isCurrentlyReading ? !!book.currentlyReading : !book.currentlyReading
+      );
+    }
+
     // Sort results
     const sortBy = searchParams.get('sortBy');
     const sortOrder = searchParams.get('sortOrder') || 'asc';

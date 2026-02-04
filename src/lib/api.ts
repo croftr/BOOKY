@@ -14,6 +14,7 @@ export interface FetchBooksParams {
   completionOrder?: number;
   minOrder?: number;
   maxOrder?: number;
+  currentlyReading?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   page?: number;

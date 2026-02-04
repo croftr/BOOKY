@@ -37,6 +37,7 @@ export default function Home() {
   // Filter and sort states
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedRating, setSelectedRating] = useState<number>(0);
+  const [showCurrentlyReading, setShowCurrentlyReading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('completion');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -68,13 +69,13 @@ export default function Home() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery]);
+  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery]);
 
   // Load books whenever filter, sort, or pagination parameters change
   // Only search by title if 3 or more characters
   useEffect(() => {
     loadBooks();
-  }, [selectedCategory, selectedRating, sortBy, sortDirection, debouncedSearchQuery, currentPage]);
+  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery, currentPage]);
 
   const loadBooks = async () => {
     try {
@@ -82,6 +83,7 @@ export default function Home() {
       const response = await fetchBooks({
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
+        currentlyReading: showCurrentlyReading ? true : undefined,
         title: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
         sortBy: sortOptionToApiField(sortBy),
         sortOrder: sortDirection,
@@ -243,6 +245,8 @@ export default function Home() {
             onCategoryChange={setSelectedCategory}
             selectedRating={selectedRating}
             onRatingChange={setSelectedRating}
+            showCurrentlyReading={showCurrentlyReading}
+            onShowCurrentlyReadingChange={setShowCurrentlyReading}
             sortBy={sortBy}
             onSortChange={setSortBy}
             sortDirection={sortDirection}

@@ -29,6 +29,7 @@ server.addTool({
     completionOrder: z.number().optional().describe("Filter by exact completion order number"),
     minOrder: z.number().optional().describe("Filter by minimum completion order"),
     maxOrder: z.number().optional().describe("Filter by maximum completion order"),
+    currentlyReading: z.boolean().optional().describe("Filter by currently reading status"),
     sortBy: z.enum(["title", "rating", "category", "dateCompleted", "completionOrder"]).optional().describe("Sort results by field"),
     sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort order: ascending or descending (default: asc)"),
   }),
@@ -78,10 +79,11 @@ server.addTool({
     dateCompleted: z.string().optional().describe("Date completed in ISO format YYYY-MM-DD (optional, defaults to today)"),
     completionOrder: z.number().optional().describe("Completion order number (optional, defaults to max + 1)"),
     image: z.string().optional().describe("Image URL for book cover (optional)"),
+    currentlyReading: z.boolean().optional().describe("Whether the book is currently being read (optional)"),
   }),
   execute: async (args) => {
     try {
-      const { title, category, rating, review, dateCompleted, completionOrder, image } = args;
+      const { title, category, rating, review, dateCompleted, completionOrder, image, currentlyReading } = args;
 
       // Get all books to calculate next completion order if not provided
       let finalCompletionOrder = completionOrder;
@@ -111,6 +113,7 @@ server.addTool({
         dateCompleted: finalDateCompleted,
         completionOrder: finalCompletionOrder,
         image: image || "",
+        currentlyReading: currentlyReading || false,
       };
 
       const createResponse = await fetch(`${BASE_URL}/api/books`, {
@@ -204,8 +207,8 @@ server.addTool({
   Use this when the user wants to update or correct information about a book they've read.`,
   parameters: z.object({
     bookTitle: z.string().describe("The book title or partial title to search for (required, case-insensitive)"),
-    field: z.enum(["title", "rating", "review", "category", "dateCompleted", "completionOrder"]).describe("The field to edit (required)"),
-    value: z.union([z.string(), z.number()]).describe("The new value for the field (required)"),
+    field: z.enum(["title", "rating", "review", "category", "dateCompleted", "completionOrder", "currentlyReading"]).describe("The field to edit (required)"),
+    value: z.union([z.string(), z.number(), z.boolean()]).describe("The new value for the field (required)"),
   }),
   execute: async (args) => {
     try {
@@ -243,6 +246,16 @@ server.addTool({
           throw new Error("Rating must be between 0 and 5");
         }
         updatePayload[field] = numValue;
+      } else if (field === "currentlyReading") {
+        if (typeof value === "boolean") {
+          updatePayload[field] = value;
+        } else if (value === "true") {
+          updatePayload[field] = true;
+        } else if (value === "false") {
+          updatePayload[field] = false;
+        } else {
+          throw new Error(`${field} must be a valid boolean`);
+        }
       } else {
         updatePayload[field] = String(value);
       }
