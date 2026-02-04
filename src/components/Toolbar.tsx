@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X, MessageCircle } from 'lucide-react';
+import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X, MessageCircle, BookOpen } from 'lucide-react';
 import { CATEGORIES, getCategoryConfig } from '@/config/categories';
 
 export type SortOption = 'completion' | 'title' | 'rating' | 'date';
@@ -10,6 +10,8 @@ interface ToolbarProps {
   onCategoryChange: (category: string) => void;
   selectedRating: number;
   onRatingChange: (rating: number) => void;
+  showCurrentlyReading: boolean;
+  onShowCurrentlyReadingChange: (show: boolean) => void;
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
   sortDirection: SortDirection;
@@ -25,6 +27,8 @@ export default function Toolbar({
   onCategoryChange,
   selectedRating,
   onRatingChange,
+  showCurrentlyReading,
+  onShowCurrentlyReadingChange,
   sortBy,
   onSortChange,
   sortDirection,
@@ -95,6 +99,20 @@ export default function Toolbar({
             </button>
           )}
         </div>
+
+        {/* Currently Reading Toggle */}
+        <button
+          type="button"
+          onClick={() => onShowCurrentlyReadingChange(!showCurrentlyReading)}
+          className={`flex items-center gap-2 px-3 py-2 border rounded-md text-sm transition-colors flex-shrink-0 ${showCurrentlyReading
+              ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-900 dark:text-green-100'
+              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+            }`}
+          title="Show only currently reading"
+        >
+          <BookOpen size={16} />
+          <span className="hidden xl:inline">Reading</span>
+        </button>
 
         {/* Category Filter */}
         <div className="flex-1 min-w-0 lg:max-w-[200px]" ref={categoryDropdownRef}>
