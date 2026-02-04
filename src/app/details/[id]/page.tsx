@@ -9,6 +9,7 @@ import CategorySelect from '@/components/CategorySelect';
 import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
 import CoverPicker from '@/components/CoverPicker';
+import Toggle from '@/components/Toggle';
 import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus, Eraser } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
@@ -36,6 +37,7 @@ export default function BookDetailsPage() {
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
+    const [currentlyReading, setCurrentlyReading] = useState(false);
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
     const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
@@ -69,6 +71,7 @@ export default function BookDetailsPage() {
             setRating(foundBook.rating);
             setReview(foundBook.review);
             setCategory(foundBook.category);
+            setCurrentlyReading(foundBook.currentlyReading || false);
             setDateCompleted(foundBook.dateCompleted);
             setCompletionOrder(foundBook.completionOrder || 1);
             setConversation(foundBook.conversation || []);
@@ -124,6 +127,7 @@ export default function BookDetailsPage() {
                 rating,
                 review,
                 category,
+                currentlyReading,
                 dateCompleted,
                 completionOrder,
                 externalLinks,
@@ -353,6 +357,7 @@ export default function BookDetailsPage() {
         setRating(book.rating);
         setReview(book.review);
         setCategory(book.category);
+        setCurrentlyReading(book.currentlyReading || false);
         setDateCompleted(book.dateCompleted);
         setCompletionOrder(book.completionOrder || 1);
         setExternalLinks(book.externalLinks || []);
@@ -478,6 +483,22 @@ export default function BookDetailsPage() {
                                                 </span>
                                             </div>
                                         </div>
+
+                                        {/* Currently Reading Badge */}
+                                        {book.currentlyReading && (
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                                                    Status
+                                                </h3>
+                                                <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full inline-flex items-center gap-2 text-sm font-medium">
+                                                    <span className="relative flex h-3 w-3">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                                                    </span>
+                                                    Currently Reading
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Rating */}
                                         <div>
@@ -774,6 +795,14 @@ export default function BookDetailsPage() {
                                                 value={category}
                                                 onChange={setCategory}
                                                 required
+                                            />
+                                        </div>
+
+                                        <div className="py-2">
+                                            <Toggle
+                                                label="Currently Reading"
+                                                checked={currentlyReading}
+                                                onChange={setCurrentlyReading}
                                             />
                                         </div>
 

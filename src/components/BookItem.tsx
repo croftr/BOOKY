@@ -50,13 +50,24 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
             onClick={() => router.push(`/details/${book.id}`)}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md transition-shadow hover:shadow-lg h-full relative overflow-hidden flex flex-col cursor-pointer"
         >
-            {/* Discussion Indicator Badge */}
-            {hasOngoingDiscussion && (
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-linear-to-r from-purple-500 to-pink-500 text-white px-2.5 py-1 rounded-full shadow-lg">
-                    <MessageSquare size={14} />
-                    <span className="text-xs font-medium">Chat</span>
-                </div>
-            )}
+            {/* Badges Container */}
+            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 items-end">
+                {book.currentlyReading && (
+                    <div className="flex items-center gap-1.5 bg-blue-500 text-white px-2.5 py-1 rounded-full shadow-lg">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                        </span>
+                        <span className="text-xs font-medium">Reading</span>
+                    </div>
+                )}
+                {hasOngoingDiscussion && (
+                    <div className="flex items-center gap-1.5 bg-linear-to-r from-purple-500 to-pink-500 text-white px-2.5 py-1 rounded-full shadow-lg">
+                        <MessageSquare size={14} />
+                        <span className="text-xs font-medium">Chat</span>
+                    </div>
+                )}
+            </div>
 
             <div className="flex gap-4 p-4">
                 {book.image && (
