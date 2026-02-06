@@ -116,23 +116,25 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'asc';
 
     if (sortBy) {
+      const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+
       books.sort((a, b) => {
         let aValue: any;
         let bValue: any;
 
         switch (sortBy) {
           case 'title':
-            aValue = a.title.toLowerCase();
-            bValue = b.title.toLowerCase();
-            break;
+            return sortOrder === 'asc'
+              ? collator.compare(a.title, b.title)
+              : collator.compare(b.title, a.title);
           case 'rating':
             aValue = a.rating;
             bValue = b.rating;
             break;
           case 'category':
-            aValue = a.category.toLowerCase();
-            bValue = b.category.toLowerCase();
-            break;
+            return sortOrder === 'asc'
+              ? collator.compare(a.category, b.category)
+              : collator.compare(b.category, a.category);
           case 'dateCompleted':
             aValue = a.dateCompleted;
             bValue = b.dateCompleted;
