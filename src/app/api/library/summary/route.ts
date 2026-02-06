@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLibrarySummary } from '@/app/api/utils/aiClient';
+import { getRedis } from '@/lib/redis';
+import crypto from 'node:crypto';
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,7 +14,34 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Generate cache key based on books content
+        const booksHash = crypto
+            .createHash('sha256')
+            .update(JSON.stringify(books))
+            .digest('hex');
+        const cacheKey = `library:summary:${booksHash}`;
+
+        // Check cache
+        const redis = getRedis();
+        let cachedSummary: string | null = null;
+        try {
+            cachedSummary = await redis.get(cacheKey);
+        } catch (e) {
+            console.error('Failed to retrieve summary from cache:', e);
+        }
+
+        if (cachedSummary) {
+            return NextResponse.json({ summary: cachedSummary });
+        }
+
         const summary = await generateLibrarySummary({ books });
+
+        // Cache the result for 24 hours
+        try {
+            await redis.set(cacheKey, summary, 'EX', 60 * 60 * 24);
+        } catch (e) {
+            console.error('Failed to cache summary:', e);
+        }
 
         return NextResponse.json({ summary });
     } catch (error) {
