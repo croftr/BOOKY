@@ -22,9 +22,7 @@ export default function ImportBooks({ onImport, currentBooks }: ImportBooksProps
       const jsonData: ImportBook[] = JSON.parse(text);
 
       // Calculate next completion order
-      const maxOrder = currentBooks.length > 0
-        ? Math.max(...currentBooks.map(b => b.completionOrder || 0))
-        : 0;
+      const maxOrder = currentBooks.reduce((max, b) => Math.max(max, b.completionOrder || 0), 0);
       const startOrder = maxOrder + 1;
 
       const importedBooks = importBooksFromJSON(jsonData, startOrder);
