@@ -1,0 +1,27 @@
+
+> booky@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.0 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+
+✓ Starting...
+✓ Ready in 1051ms
+ GET / 200 in 1377ms (compile: 981ms, render: 396ms)
+REDIS_URL not set, using file-based mock
+ GET /api/books?sortBy=completionOrder&sortOrder=asc&page=1&limit=100 200 in 162ms (compile: 139ms, render: 23ms)
+ GET / 200 in 95ms (compile: 6ms, render: 90ms)
+ GET /api/books?sortBy=completionOrder&sortOrder=asc&page=1&limit=100 200 in 13ms (compile: 4ms, render: 9ms)
+TypeError: fetch failed
+    at ignore-listed frames {
+  [cause]: Error: getaddrinfo EAI_AGAIN via.placeholder.com
+      at ignore-listed frames {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'via.placeholder.com'
+  }
+}
+ GET / 200 in 62ms (compile: 4ms, render: 58ms)
+ GET /api/books?sortBy=completionOrder&sortOrder=asc&page=1&limit=100 200 in 10ms (compile: 5ms, render: 5ms)
