@@ -1,4 +1,5 @@
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Book } from '@/types/book';
 import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
@@ -72,7 +73,13 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
             <div className="flex gap-4 p-4">
                 {book.image && (
                     <div className="shrink-0">
-                        <img src={book.image} alt={book.title} className="w-28 h-40 object-cover rounded shadow-md" />
+                        <Image
+                            src={book.image}
+                            alt={book.title}
+                            width={112}
+                            height={160}
+                            className="w-28 h-40 object-cover rounded shadow-md"
+                        />
                     </div>
                 )}
                 <div className="flex-1 min-w-0">
