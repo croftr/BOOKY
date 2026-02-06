@@ -116,9 +116,8 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
             {book.review && (
                 <div className="border-t border-gray-200 dark:border-gray-700 mt-auto">
                     <div
-                        className={`px-4 py-3 text-gray-700 dark:text-gray-300 text-sm markdown-content transition-all ${
-                            isReviewExpanded ? 'max-h-none' : 'max-h-24 overflow-hidden'
-                        }`}
+                        className={`px-4 py-3 text-gray-700 dark:text-gray-300 text-sm markdown-content transition-all ${isReviewExpanded ? 'max-h-none' : 'max-h-24 overflow-hidden'
+                            }`}
                     >
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {book.review}
