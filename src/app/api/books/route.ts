@@ -32,84 +32,79 @@ export async function GET(request: NextRequest) {
     let books = await readBooks();
     const searchParams = request.nextUrl.searchParams;
 
-    // Filter by category
+    // Parse all parameters first
     const category = searchParams.get('category');
-    if (category) {
-      books = books.filter(book =>
-        book.category.toLowerCase() === category.toLowerCase()
-      );
-    }
 
-    // Filter by rating (exact match or minimum rating)
     const rating = searchParams.get('rating');
     const minRating = searchParams.get('minRating');
-    if (rating) {
-      const ratingValue = parseInt(rating);
-      books = books.filter(book => book.rating === ratingValue);
-    } else if (minRating) {
-      const minRatingValue = parseInt(minRating);
-      books = books.filter(book => book.rating >= minRatingValue);
-    }
+    const ratingValue = rating ? parseInt(rating) : undefined;
+    const minRatingValue = minRating ? parseInt(minRating) : undefined;
 
-    // Filter by title (case-insensitive partial match)
     const title = searchParams.get('title');
-    if (title) {
-      books = books.filter(book =>
-        book.title.toLowerCase().includes(title.toLowerCase())
-      );
-    }
-
-    // Filter by review (case-insensitive partial match)
     const review = searchParams.get('review');
-    if (review) {
-      books = books.filter(book =>
-        book.review.toLowerCase().includes(review.toLowerCase())
-      );
-    }
 
-    // Filter by completion date (exact date or date range)
     const dateCompleted = searchParams.get('dateCompleted');
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
 
-    if (dateCompleted) {
-      books = books.filter(book => book.dateCompleted === dateCompleted);
-    } else {
-      if (dateFrom) {
-        books = books.filter(book => book.dateCompleted >= dateFrom);
-      }
-      if (dateTo) {
-        books = books.filter(book => book.dateCompleted <= dateTo);
-      }
-    }
-
-    // Filter by completion order (exact or range)
     const completionOrder = searchParams.get('completionOrder');
     const minOrder = searchParams.get('minOrder');
     const maxOrder = searchParams.get('maxOrder');
+    const orderValue = completionOrder ? parseInt(completionOrder) : undefined;
+    const minOrderValue = minOrder ? parseInt(minOrder) : undefined;
+    const maxOrderValue = maxOrder ? parseInt(maxOrder) : undefined;
 
-    if (completionOrder) {
-      const orderValue = parseInt(completionOrder);
-      books = books.filter(book => book.completionOrder === orderValue);
-    } else {
-      if (minOrder) {
-        const minOrderValue = parseInt(minOrder);
-        books = books.filter(book => book.completionOrder >= minOrderValue);
-      }
-      if (maxOrder) {
-        const maxOrderValue = parseInt(maxOrder);
-        books = books.filter(book => book.completionOrder <= maxOrderValue);
-      }
-    }
-
-    // Filter by currently reading status
     const currentlyReading = searchParams.get('currentlyReading');
-    if (currentlyReading !== null) {
-      const isCurrentlyReading = currentlyReading === 'true';
-      books = books.filter(book =>
-        isCurrentlyReading ? !!book.currentlyReading : !book.currentlyReading
-      );
-    }
+    const isCurrentlyReading = currentlyReading === 'true';
+
+    // Single pass filter
+    books = books.filter(book => {
+      // Filter by category
+      if (category && book.category.toLowerCase() !== category.toLowerCase()) {
+        return false;
+      }
+
+      // Filter by rating (exact match or minimum rating)
+      if (ratingValue !== undefined) {
+        if (book.rating !== ratingValue) return false;
+      } else if (minRatingValue !== undefined) {
+        if (!(book.rating >= minRatingValue)) return false;
+      }
+
+      // Filter by title (case-insensitive partial match)
+      if (title && !book.title.toLowerCase().includes(title.toLowerCase())) {
+        return false;
+      }
+
+      // Filter by review (case-insensitive partial match)
+      if (review && !book.review.toLowerCase().includes(review.toLowerCase())) {
+        return false;
+      }
+
+      // Filter by completion date (exact date or date range)
+      if (dateCompleted) {
+        if (book.dateCompleted !== dateCompleted) return false;
+      } else {
+        if (dateFrom && book.dateCompleted < dateFrom) return false;
+        if (dateTo && book.dateCompleted > dateTo) return false;
+      }
+
+      // Filter by completion order (exact or range)
+      if (orderValue !== undefined) {
+        if (book.completionOrder !== orderValue) return false;
+      } else {
+        if (minOrderValue !== undefined && !(book.completionOrder >= minOrderValue)) return false;
+        if (maxOrderValue !== undefined && !(book.completionOrder <= maxOrderValue)) return false;
+      }
+
+      // Filter by currently reading status
+      if (currentlyReading !== null) {
+        const bookIsReading = !!book.currentlyReading;
+        if (isCurrentlyReading !== bookIsReading) return false;
+      }
+
+      return true;
+    });
 
     // Sort results
     const sortBy = searchParams.get('sortBy');
