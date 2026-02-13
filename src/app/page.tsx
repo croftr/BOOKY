@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
@@ -41,7 +41,6 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortOption>('completion');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -57,25 +56,21 @@ export default function Home() {
   // Import modal state
   const [showImportModal, setShowImportModal] = useState(false);
 
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 300); // 300ms delay
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  // Stable callback for Toolbar's debounced search
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery]);
+  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, searchQuery]);
 
   // Load books whenever filter, sort, or pagination parameters change
   // Only search if 3 or more characters
   useEffect(() => {
     loadBooks();
-  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery, currentPage]);
+  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, searchQuery, currentPage]);
 
   const loadBooks = async () => {
     try {
@@ -84,7 +79,7 @@ export default function Home() {
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
         currentlyReading: showCurrentlyReading ? true : undefined,
-        search: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
+        search: searchQuery.length >= 3 ? searchQuery : undefined,
         sortBy: sortOptionToApiField(sortBy),
         sortOrder: sortDirection,
         page: currentPage,
@@ -105,7 +100,7 @@ export default function Home() {
     }
   };
 
-  const handleUpdateBook = async (updatedBook: Book) => {
+  const handleUpdateBook = useCallback(async (updatedBook: Book) => {
     try {
       await updateBook(updatedBook.id, updatedBook);
       // Reload books to get fresh data from API
@@ -114,7 +109,7 @@ export default function Home() {
       console.error('Failed to update book:', error);
       alert('Failed to update book. Please try again.');
     }
-  };
+  }, []);
 
   const loadAllBooks = async () => {
     if (!allBooksLoaded) {
@@ -131,14 +126,14 @@ export default function Home() {
     }
   };
 
-  const handleOpenChat = async () => {
+  const handleOpenChat = useCallback(async () => {
     try {
       await loadAllBooks();
       setShowChatModal(true);
     } catch (error) {
       alert('Failed to load books. Please try again.');
     }
-  };
+  }, []);
 
   const handleExportData = async () => {
     try {
@@ -239,7 +234,7 @@ export default function Home() {
           </div>
         </div>
 
-        {!isLoading && hasAnyBooks && (
+        {hasAnyBooks && (
           <Toolbar
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -251,14 +246,13 @@ export default function Home() {
             onSortChange={setSortBy}
             sortDirection={sortDirection}
             onSortDirectionChange={setSortDirection}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
+            onSearchChange={handleSearchChange}
             bookCount={totalBooks}
             onSummaryClick={handleOpenChat}
           />
         )}
 
-        {isLoading ? (
+        {isLoading && !hasAnyBooks ? (
           <div className="text-center text-gray-600 dark:text-gray-400">Loading books...</div>
         ) : books.length === 0 && !hasAnyBooks ? (
           <BookList books={books} onUpdateBook={handleUpdateBook} />

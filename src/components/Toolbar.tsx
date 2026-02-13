@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X, MessageCircle, BookOpen } from 'lucide-react';
 import { CATEGORIES, getCategoryConfig } from '@/config/categories';
 
@@ -16,13 +16,12 @@ interface ToolbarProps {
   onSortChange: (sort: SortOption) => void;
   sortDirection: SortDirection;
   onSortDirectionChange: (direction: SortDirection) => void;
-  searchQuery: string;
   onSearchChange: (query: string) => void;
   bookCount: number;
   onSummaryClick?: () => void;
 }
 
-export default function Toolbar({
+export default memo(function Toolbar({
   selectedCategory,
   onCategoryChange,
   selectedRating,
@@ -33,12 +32,12 @@ export default function Toolbar({
   onSortChange,
   sortDirection,
   onSortDirectionChange,
-  searchQuery,
   onSearchChange,
   bookCount,
   onSummaryClick,
 }: ToolbarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedCategoryConfig = getCategoryConfig(selectedCategory);
@@ -54,6 +53,14 @@ export default function Toolbar({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Debounce search and notify parent
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearchChange(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, onSearchChange]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
@@ -85,13 +92,13 @@ export default function Toolbar({
             type="text"
             placeholder="Search title or review..."
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => onSearchChange('')}
+              onClick={() => setSearchQuery('')}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               title="Clear search"
             >
@@ -207,4 +214,4 @@ export default function Toolbar({
       </div>
     </div>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Book } from '@/types/book';
 import BookItem from './BookItem';
 
@@ -6,7 +7,7 @@ interface BookListProps {
     onUpdateBook?: (book: Book) => void;
 }
 
-export default function BookList({ books, onUpdateBook }: BookListProps) {
+export default memo(function BookList({ books, onUpdateBook }: BookListProps) {
     if (books.length === 0) {
         return <p className="text-center text-gray-500 dark:text-gray-400">No books added yet.</p>;
     }
@@ -18,4 +19,4 @@ export default function BookList({ books, onUpdateBook }: BookListProps) {
             ))}
         </div>
     );
-}
+});

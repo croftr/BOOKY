@@ -34,7 +34,8 @@
       "Bash(mv:*)",
       "Bash(xcopy:*)",
       "Bash(node fix-completion-order.js)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx next build:*)"
     ]
   }
 }

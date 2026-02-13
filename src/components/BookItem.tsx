@@ -6,14 +6,14 @@ import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 interface BookItemProps {
     book: Book;
     onUpdate?: (book: Book) => void;
 }
 
-export default function BookItem({ book, onUpdate }: BookItemProps) {
+export default memo(function BookItem({ book, onUpdate }: BookItemProps) {
     const router = useRouter();
     const [isReviewExpanded, setIsReviewExpanded] = useState(false);
 
@@ -146,4 +146,4 @@ export default function BookItem({ book, onUpdate }: BookItemProps) {
             )}
         </div>
     );
-}
+});
