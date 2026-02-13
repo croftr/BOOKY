@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
 
     const title = searchParams.get('title');
     const review = searchParams.get('review');
+    const search = searchParams.get('search');
 
     const dateCompleted = searchParams.get('dateCompleted');
     const dateFrom = searchParams.get('dateFrom');
@@ -79,6 +80,17 @@ export async function GET(request: NextRequest) {
       // Filter by review (case-insensitive partial match)
       if (review && !book.review.toLowerCase().includes(review.toLowerCase())) {
         return false;
+      }
+
+      // Filter by general search (title OR review)
+      if (search) {
+        const searchLower = search.toLowerCase();
+        const titleMatch = book.title.toLowerCase().includes(searchLower);
+        const reviewMatch = book.review && book.review.toLowerCase().includes(searchLower);
+
+        if (!titleMatch && !reviewMatch) {
+          return false;
+        }
       }
 
       // Filter by completion date (exact date or date range)

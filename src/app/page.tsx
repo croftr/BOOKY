@@ -72,7 +72,7 @@ export default function Home() {
   }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery]);
 
   // Load books whenever filter, sort, or pagination parameters change
-  // Only search by title if 3 or more characters
+  // Only search if 3 or more characters
   useEffect(() => {
     loadBooks();
   }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, debouncedSearchQuery, currentPage]);
@@ -84,7 +84,7 @@ export default function Home() {
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
         currentlyReading: showCurrentlyReading ? true : undefined,
-        title: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
+        search: debouncedSearchQuery.length >= 3 ? debouncedSearchQuery : undefined,
         sortBy: sortOptionToApiField(sortBy),
         sortOrder: sortDirection,
         page: currentPage,
