@@ -39,7 +39,7 @@ export default function Home() {
   const [selectedRating, setSelectedRating] = useState<number>(0);
   const [showCurrentlyReading, setShowCurrentlyReading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('completion');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
