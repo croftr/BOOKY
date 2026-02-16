@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
-import { Pagination } from '@/components/Pagination';
 import BookChatModal from '@/components/BookChatModal';
 import ImportDataModal from '@/components/ImportDataModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
 
-import { CirclePlus, Download, Upload, BarChart3 } from 'lucide-react';
+import { CirclePlus, Download, Upload, BarChart3, Loader2 } from 'lucide-react';
 
 // Map UI sort options to API sort fields
 const sortOptionToApiField = (sortOption: SortOption): string => {
@@ -32,6 +31,7 @@ export default function Home() {
   const router = useRouter();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasAnyBooks, setHasAnyBooks] = useState(false);
 
   // Filter and sort states
@@ -46,7 +46,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalBooks, setTotalBooks] = useState<number>(0);
-  const pageSize = 100;
+  const pageSize = 30;
 
   // Chat modal state
   const [showChatModal, setShowChatModal] = useState(false);
@@ -55,6 +55,9 @@ export default function Home() {
 
   // Import modal state
   const [showImportModal, setShowImportModal] = useState(false);
+
+  // Infinite scroll ref
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Stable callback for Toolbar's debounced search
   const handleSearchChange = useCallback((query: string) => {
@@ -66,15 +69,14 @@ export default function Home() {
     setCurrentPage(1);
   }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, searchQuery]);
 
-  // Load books whenever filter, sort, or pagination parameters change
-  // Only search if 3 or more characters
-  useEffect(() => {
-    loadBooks();
-  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, searchQuery, currentPage]);
-
-  const loadBooks = async () => {
+  const loadBooks = useCallback(async (append: boolean = false) => {
     try {
-      setIsLoading(true);
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
+
       const response = await fetchBooks({
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
@@ -85,7 +87,13 @@ export default function Home() {
         page: currentPage,
         limit: pageSize,
       });
-      setBooks(response.items);
+
+      if (append) {
+        setBooks(prev => [...prev, ...response.items]);
+      } else {
+        setBooks(response.items);
+      }
+
       setTotalBooks(response.total);
       setTotalPages(response.totalPages);
 
@@ -97,14 +105,43 @@ export default function Home() {
       console.error('Failed to load books:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
-  };
+  }, [selectedCategory, selectedRating, showCurrentlyReading, searchQuery, sortBy, sortDirection, currentPage, hasAnyBooks]);
+
+  // Load books whenever filter, sort, or pagination parameters change
+  useEffect(() => {
+    const isLoadMore = currentPage > 1;
+    loadBooks(isLoadMore);
+  }, [loadBooks, currentPage]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoading && !isLoadingMore && currentPage < totalPages) {
+          setCurrentPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [isLoading, isLoadingMore, totalPages, currentPage]);
 
   const handleUpdateBook = useCallback(async (updatedBook: Book) => {
     try {
       await updateBook(updatedBook.id, updatedBook);
-      // Reload books to get fresh data from API
-      await loadBooks();
+      // Update local state to reflect changes without reloading everything
+      setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
     } catch (error) {
       console.error('Failed to update book:', error);
       alert('Failed to update book. Please try again.');
@@ -172,7 +209,11 @@ export default function Home() {
   const handleImportComplete = async () => {
     // Reload books after import and invalidate cache
     setAllBooksLoaded(false);
-    await loadBooks();
+    setCurrentPage(1);
+    // Force reload if we are already at page 1, otherwise useEffect will trigger
+    if (currentPage === 1) {
+        loadBooks(false);
+    }
     setShowImportModal(false);
   };
 
@@ -263,13 +304,15 @@ export default function Home() {
         ) : (
           <>
             <BookList books={books} onUpdateBook={handleUpdateBook} />
-            {totalBooks > pageSize && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            )}
+
+            <div ref={observerTarget} className="h-10 flex items-center justify-center mt-4">
+               {isLoadingMore && (
+                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                   <Loader2 className="animate-spin" size={20} />
+                   <span>Loading more...</span>
+                 </div>
+               )}
+            </div>
           </>
         )}
 
