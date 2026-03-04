@@ -36,4 +36,5 @@ export interface Book {
     conversation?: ConversationMessage[]; // Conversation history with AI
     externalLinks?: ExternalLink[]; // External resources (YouTube, reviews, etc.)
     googleBooksInfo?: GoogleBooksInfo; // Information from Google Books API
+    reviewImages?: string[]; // Attached images for the review
 }

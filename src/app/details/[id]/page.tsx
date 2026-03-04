@@ -44,6 +44,10 @@ export default function BookDetailsPage() {
     const [googleBooksInfo, setGoogleBooksInfo] = useState<GoogleBooksInfo | null>(null);
     const [isLoadingGoogleBooks, setIsLoadingGoogleBooks] = useState(false);
 
+    // Review Images state
+    const [reviewImages, setReviewImages] = useState<string[]>([]);
+    const [isUploadingReviewImage, setIsUploadingReviewImage] = useState(false);
+
     // New link form state
     const [newLinkType, setNewLinkType] = useState<'youtube' | 'review' | 'article' | 'other'>('youtube');
     const [newLinkUrl, setNewLinkUrl] = useState('');
@@ -77,6 +81,7 @@ export default function BookDetailsPage() {
             setConversation(foundBook.conversation || []);
             setExternalLinks(foundBook.externalLinks || []);
             setGoogleBooksInfo(foundBook.googleBooksInfo || null);
+            setReviewImages(foundBook.reviewImages || []);
         } catch (error) {
             console.error('Failed to load book:', error);
             alert('Book not found');
@@ -132,6 +137,7 @@ export default function BookDetailsPage() {
                 completionOrder,
                 externalLinks,
                 googleBooksInfo: googleBooksInfo || undefined,
+                reviewImages,
             };
 
             await updateBook(book.id, updatedBook);
@@ -361,8 +367,33 @@ export default function BookDetailsPage() {
         setDateCompleted(book.dateCompleted);
         setCompletionOrder(book.completionOrder || 1);
         setExternalLinks(book.externalLinks || []);
+        setReviewImages(book.reviewImages || []);
         setImageFile(null);
         setIsEditMode(false);
+    };
+
+    const handleUploadReviewImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingReviewImage(true);
+        try {
+            const compressedFile = await compressImage(file);
+            const imageUrl = await uploadImage(compressedFile);
+            setReviewImages(prev => [...prev, imageUrl]);
+        } catch (error) {
+            console.error('Error uploading review image:', error);
+            alert('Failed to upload image. Please try again.');
+        } finally {
+            setIsUploadingReviewImage(false);
+            if (e.target) {
+                e.target.value = ''; // Reset input
+            }
+        }
+    };
+
+    const handleRemoveReviewImage = (indexToRemove: number) => {
+        setReviewImages(prev => prev.filter((_, index) => index !== indexToRemove));
     };
 
     const getLinkIcon = (type: string) => {
@@ -544,6 +575,32 @@ export default function BookDetailsPage() {
                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                         {book.review}
                                                     </ReactMarkdown>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Review Images */}
+                                        {book.reviewImages && book.reviewImages.length > 0 && (
+                                            <div className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+                                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                                                    Attached Images
+                                                </h3>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                                    {book.reviewImages.map((imgUrl, idx) => (
+                                                        <a
+                                                            key={idx}
+                                                            href={imgUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="block aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                                                        >
+                                                            <img
+                                                                src={imgUrl}
+                                                                alt={`Review image ${idx + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </a>
+                                                    ))}
                                                 </div>
                                             </div>
                                         )}
@@ -858,6 +915,51 @@ export default function BookDetailsPage() {
                                                 rows={8}
                                                 placeholder="What did you think of this book? (Supports Markdown formatting)"
                                             />
+                                        </div>
+
+                                        {/* Review Images Upload */}
+                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+                                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                                                Review Images
+                                            </h3>
+
+                                            <div className="flex flex-col gap-4">
+                                                {reviewImages.length > 0 && (
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                                        {reviewImages.map((imgUrl, idx) => (
+                                                            <div key={idx} className="relative group aspect-square">
+                                                                <img
+                                                                    src={imgUrl}
+                                                                    alt={`Review image ${idx + 1}`}
+                                                                    className="w-full h-full object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveReviewImage(idx)}
+                                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                                                    title="Remove image"
+                                                                >
+                                                                    <X size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center gap-3">
+                                                    <label className={`flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg cursor-pointer transition-colors text-sm font-medium ${isUploadingReviewImage ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        <Plus size={16} />
+                                                        {isUploadingReviewImage ? 'Uploading...' : 'Add Image'}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleUploadReviewImage}
+                                                            disabled={isUploadingReviewImage}
+                                                            className="hidden"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* External Links Management */}
