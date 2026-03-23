@@ -320,12 +320,9 @@ export default function BookDetailsPage() {
                 };
                 await updateBook(book.id, updatedBook);
                 setBook(updatedBook);
-            } else {
-                alert('No information found on Google Books for this title.');
             }
         } catch (error) {
             console.error('Error fetching Google Books:', error);
-            alert('Failed to fetch Google Books information.');
         } finally {
             setIsLoadingGoogleBooks(false);
         }
@@ -677,9 +674,13 @@ export default function BookDetailsPage() {
                                                         )}
                                                     </div>
                                                 </div>
+                                            ) : isLoadingGoogleBooks ? (
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                                    Loading...
+                                                </p>
                                             ) : (
                                                 <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                                                    No Google Books information loaded yet.
+                                                    No info available
                                                 </p>
                                             )}
                                         </div>
