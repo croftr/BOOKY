@@ -9,7 +9,9 @@
     "lint": "eslint",
     "migrate": "tsx scripts/migrate-to-kv.ts",
     "migrate:images": "tsx scripts/migrate-images-to-base64.ts",
-    "migrate:blob": "tsx scripts/migrate-images-to-blob.ts"
+    "migrate:blob": "tsx scripts/migrate-images-to-blob.ts",
+    "sync:push": "tsx scripts/sync.ts push",
+    "sync:pull": "tsx scripts/sync.ts pull"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",

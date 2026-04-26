@@ -1,56 +1,86 @@
-import Redis from 'ioredis';
+import { put, list } from '@vercel/blob';
 import fs from 'fs';
 import path from 'path';
 
-// Mock Redis client for development without Redis
-class MockRedis {
-  private dataPath = path.join(process.cwd(), 'data', 'books-mock.json');
+/**
+ * A simple storage interface that works:
+ * 1. Locally with a JSON file (data/books.json)
+ * 2. In production with Vercel Blob (stores books.json in the cloud)
+ */
+class StorageClient {
+  private localPath = path.join(process.cwd(), 'data', 'books.json');
+  private isDev = process.env.NODE_ENV === 'development';
+  private blobName = 'books-data-v1.json';
 
   constructor() {
-    if (!fs.existsSync(path.dirname(this.dataPath))) {
-      fs.mkdirSync(path.dirname(this.dataPath), { recursive: true });
-    }
-    if (!fs.existsSync(this.dataPath)) {
-      fs.writeFileSync(this.dataPath, '{}');
+    if (this.isDev && !fs.existsSync(path.dirname(this.localPath))) {
+      fs.mkdirSync(path.dirname(this.localPath), { recursive: true });
     }
   }
 
-  async get(key: string) {
-    const data = JSON.parse(fs.readFileSync(this.dataPath, 'utf-8'));
-    return data[key] || null;
+  async get(key: string): Promise<string | null> {
+    // 1. Local Fallback (Dev Only)
+    if (this.isDev && !process.env.FORCE_CLOUD) {
+      if (!fs.existsSync(this.localPath)) return null;
+      return fs.readFileSync(this.localPath, 'utf-8');
+    }
+
+    // 2. Vercel Blob (Cloud)
+    try {
+      const { blobs } = await list({ prefix: this.blobName });
+      if (blobs.length === 0) return null;
+      
+      // Sort by uploadedAt descending to get the latest
+      const latest = blobs.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+      const response = await fetch(latest.url);
+      if (!response.ok) return null;
+      return await response.text();
+    } catch (e) {
+      console.error('Blob Storage Read Error:', e);
+      return null;
+    }
   }
 
-  async set(key: string, value: string) {
-    const data = JSON.parse(fs.readFileSync(this.dataPath, 'utf-8'));
-    data[key] = value;
-    fs.writeFileSync(this.dataPath, JSON.stringify(data, null, 2));
-    return 'OK';
+  async set(key: string, value: string): Promise<'OK'> {
+    if (this.isDev && !process.env.FORCE_CLOUD) {
+      fs.writeFileSync(this.localPath, value, 'utf-8');
+      return 'OK';
+    }
+
+    try {
+      // Upload new version to Blob
+      // Note: We use the same name; Vercel Blob keeps history or we just find the latest via list()
+      await put(this.blobName, value, {
+        access: 'public',
+        addRandomSuffix: true, // Recommended by Vercel for CDN consistency
+      });
+      return 'OK';
+    } catch (e) {
+      console.error('Blob Storage Write Error:', e);
+      throw e;
+    }
+  }
+
+  async del(key: string): Promise<number> {
+    if (this.isDev && !process.env.FORCE_CLOUD) {
+      fs.writeFileSync(this.localPath, '[]', 'utf-8');
+      return 1;
+    }
+    // Delete in Blob is more complex as it requires deleting all versions
+    // For this simple app, we just 'set' to empty array
+    await this.set(key, '[]');
+    return 1;
   }
 }
 
-// Create Redis client
-const getRedisClient = () => {
-  const redisUrl = process.env.REDIS_URL;
-
-  if (!redisUrl) {
-    console.warn('REDIS_URL not set, using file-based mock');
-    return new MockRedis() as unknown as Redis;
-  }
-
-  return new Redis(redisUrl, {
-    maxRetriesPerRequest: 3,
-    retryStrategy(times) {
-      const delay = Math.min(times * 50, 2000);
-      return delay;
-    },
-  });
-};
-
-let redis: Redis | null = null;
+let storageInstance: StorageClient | null = null;
 
 export const getRedis = () => {
-  if (!redis) {
-    redis = getRedisClient();
+  if (!storageInstance) {
+    storageInstance = new StorageClient();
   }
-  return redis;
+  return storageInstance;
 };
+
+
+
