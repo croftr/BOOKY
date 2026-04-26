@@ -41,7 +41,7 @@ class StorageClient {
     }
   }
 
-  async set(key: string, value: string): Promise<'OK'> {
+  async set(key: string, value: string, ...args: any[]): Promise<'OK'> {
     if (this.isDev && !process.env.FORCE_CLOUD) {
       fs.writeFileSync(this.localPath, value, 'utf-8');
       return 'OK';
@@ -49,10 +49,9 @@ class StorageClient {
 
     try {
       // Upload new version to Blob
-      // Note: We use the same name; Vercel Blob keeps history or we just find the latest via list()
       await put(this.blobName, value, {
         access: 'public',
-        addRandomSuffix: true, // Recommended by Vercel for CDN consistency
+        addRandomSuffix: true,
       });
       return 'OK';
     } catch (e) {
@@ -60,6 +59,7 @@ class StorageClient {
       throw e;
     }
   }
+
 
   async del(key: string): Promise<number> {
     if (this.isDev && !process.env.FORCE_CLOUD) {
