@@ -27,11 +27,18 @@ class StorageClient {
 
     // 2. Vercel Blob (Cloud)
     try {
-      const { blobs } = await list({ prefix: this.blobName });
-      if (blobs.length === 0) return null;
+      // Use a prefix search that matches even with random suffixes
+      const searchPrefix = this.blobName.split('.')[0]; 
+      const { blobs } = await list({ prefix: searchPrefix });
+      
+      // Filter for exact matches of our filename (ignoring the random suffix part)
+      const dataBlobs = blobs.filter(b => b.pathname.startsWith(searchPrefix) && b.pathname.endsWith('.json'));
+      
+      if (dataBlobs.length === 0) return null;
       
       // Sort by uploadedAt descending to get the latest
-      const latest = blobs.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+      const latest = dataBlobs.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+
       const response = await fetch(latest.url);
       if (!response.ok) return null;
       return await response.text();

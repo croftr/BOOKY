@@ -47,15 +47,19 @@ async function sync() {
       console.log(`✅ Success! Uploaded ${books.length} books to Vercel Blob.`);
     } else {
       console.log('☁️ Pulling books from Vercel Blob to local books.json...');
-      const { blobs } = await list({ prefix: BLOB_NAME });
+      const searchPrefix = BLOB_NAME.split('.')[0];
+      const { blobs } = await list({ prefix: searchPrefix });
       
-      if (blobs.length === 0) {
+      const dataBlobs = blobs.filter(b => b.pathname.startsWith(searchPrefix) && b.pathname.endsWith('.json'));
+      
+      if (dataBlobs.length === 0) {
         console.error('❌ No data found in Vercel Blob');
         process.exit(1);
       }
       
       // Get the latest blob
-      const latest = blobs.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+      const latest = dataBlobs.sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())[0];
+
       const response = await fetch(latest.url);
       const books = await response.json();
       
