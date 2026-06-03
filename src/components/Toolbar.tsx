@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, memo } from 'react';
-import { ArrowUpDown, Search, ChevronDown, ArrowUp, ArrowDown, X, MessageCircle, BookOpen } from 'lucide-react';
+import { Search, ChevronDown, ArrowUp, ArrowDown, X, BookOpen } from 'lucide-react';
 import { CATEGORIES, getCategoryConfig } from '@/config/categories';
 
 export type SortOption = 'completion' | 'title' | 'rating' | 'date';
@@ -18,7 +18,6 @@ interface ToolbarProps {
   onSortDirectionChange: (direction: SortDirection) => void;
   onSearchChange: (query: string) => void;
   bookCount: number;
-  onSummaryClick?: () => void;
 }
 
 export default memo(function Toolbar({
@@ -34,7 +33,6 @@ export default memo(function Toolbar({
   onSortDirectionChange,
   onSearchChange,
   bookCount,
-  onSummaryClick,
 }: ToolbarProps) {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,19 +69,6 @@ export default memo(function Toolbar({
             {bookCount} {bookCount === 1 ? 'book' : 'books'}
           </span>
         </div>
-
-        {/* Chat Button */}
-        {onSummaryClick && bookCount > 0 && (
-          <button
-            type="button"
-            onClick={onSummaryClick}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-md transition-all shadow-md hover:shadow-lg text-sm font-medium flex-shrink-0"
-            title="Chat about your books"
-          >
-            <MessageCircle size={16} />
-            <span>Chat</span>
-          </button>
-        )}
 
         {/* Search Box */}
         <div className="relative flex-1 min-w-0">

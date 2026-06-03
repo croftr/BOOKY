@@ -88,10 +88,7 @@ export default function ImportDataModal({ isOpen, onClose, onImportComplete }: I
           image: bookToImport.image ?? '',
           dateCompleted: bookToImport.dateCompleted ?? '',
           completionOrder,
-          aiSummary: bookToImport.aiSummary,
-          conversation: bookToImport.conversation ?? [],
           externalLinks: bookToImport.externalLinks ?? [],
-          googleBooksInfo: bookToImport.googleBooksInfo,
         };
       });
 

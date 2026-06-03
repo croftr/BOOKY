@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Book, ConversationMessage, ExternalLink, GoogleBooksInfo } from '@/types/book';
+import { Book, ExternalLink } from '@/types/book';
 import { fetchBook, updateBook, deleteBook as deleteBookApi, uploadImage } from '@/lib/api';
 import { compressImage } from '@/lib/imageCompression';
 import CategorySelect from '@/components/CategorySelect';
@@ -10,7 +10,7 @@ import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
 import CoverPicker from '@/components/CoverPicker';
 import Toggle from '@/components/Toggle';
-import { Pencil, X, Save, Trash2, ArrowLeft, Sparkles, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus, Eraser } from 'lucide-react';
+import { Pencil, X, Save, Trash2, ArrowLeft, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus } from 'lucide-react';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -25,15 +25,10 @@ export default function BookDetailsPage() {
     const [isUploading, setIsUploading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [conversation, setConversation] = useState<ConversationMessage[]>([]);
-    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-    const [summaryError, setSummaryError] = useState<string>('');
-    const [userInput, setUserInput] = useState<string>('');
 
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
-    const [selectedCoverUrl, setSelectedCoverUrl] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
@@ -41,8 +36,6 @@ export default function BookDetailsPage() {
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
     const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
-    const [googleBooksInfo, setGoogleBooksInfo] = useState<GoogleBooksInfo | null>(null);
-    const [isLoadingGoogleBooks, setIsLoadingGoogleBooks] = useState(false);
 
     // Review Images state
     const [reviewImages, setReviewImages] = useState<string[]>([]);
@@ -58,12 +51,6 @@ export default function BookDetailsPage() {
         loadBook();
     }, [bookId]);
 
-    useEffect(() => {
-        if (book && !googleBooksInfo && !isLoadingGoogleBooks) {
-            handleFetchGoogleBooks();
-        }
-    }, [book]);
-
     const loadBook = async () => {
         try {
             setIsLoading(true);
@@ -78,9 +65,7 @@ export default function BookDetailsPage() {
             setCurrentlyReading(foundBook.currentlyReading || false);
             setDateCompleted(foundBook.dateCompleted);
             setCompletionOrder(foundBook.completionOrder || 1);
-            setConversation(foundBook.conversation || []);
             setExternalLinks(foundBook.externalLinks || []);
-            setGoogleBooksInfo(foundBook.googleBooksInfo || null);
             setReviewImages(foundBook.reviewImages || []);
         } catch (error) {
             console.error('Failed to load book:', error);
@@ -91,15 +76,8 @@ export default function BookDetailsPage() {
         }
     };
 
-    const handleSelectCover = (url: string) => {
-        setSelectedCoverUrl(url);
-        setImageFile(null);
-        setImagePreview(url);
-    };
-
     const handleUploadFile = (file: File) => {
         setImageFile(file);
-        setSelectedCoverUrl('');
         const reader = new FileReader();
         reader.onload = () => {
             setImagePreview(reader.result as string);
@@ -116,10 +94,7 @@ export default function BookDetailsPage() {
         try {
             let imageUrl = book.image;
 
-            // Use selected cover URL if available, otherwise upload file
-            if (selectedCoverUrl) {
-                imageUrl = selectedCoverUrl;
-            } else if (imageFile) {
+            if (imageFile) {
                 // Compress image before uploading
                 const compressedFile = await compressImage(imageFile);
                 imageUrl = await uploadImage(compressedFile);
@@ -136,7 +111,6 @@ export default function BookDetailsPage() {
                 dateCompleted,
                 completionOrder,
                 externalLinks,
-                googleBooksInfo: googleBooksInfo || undefined,
                 reviewImages,
             };
 
@@ -161,170 +135,6 @@ export default function BookDetailsPage() {
         } catch (error) {
             console.error('Failed to delete book:', error);
             alert('Failed to delete book. Please try again.');
-        }
-    };
-
-    const handleStartDiscussion = async () => {
-        if (!book) return;
-
-        setIsGeneratingSummary(true);
-        setSummaryError('');
-
-        try {
-            const response = await fetch(`/api/books/${book.id}/summary`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: book.title,
-                    category: book.category,
-                    review: book.review,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to generate response');
-            }
-
-            const data = await response.json();
-
-            const newMessage: ConversationMessage = {
-                role: 'assistant',
-                content: data.message,
-                timestamp: new Date().toISOString(),
-            };
-
-            const updatedConversation = [newMessage];
-            setConversation(updatedConversation);
-
-            // Update the book with the new conversation
-            const updatedBook: Book = {
-                ...book,
-                conversation: updatedConversation,
-            };
-            await updateBook(book.id, updatedBook);
-            setBook(updatedBook);
-        } catch (error) {
-            console.error('Error generating response:', error);
-            setSummaryError('Failed to generate response. Please try again.');
-        } finally {
-            setIsGeneratingSummary(false);
-        }
-    };
-
-    const handleSendMessage = async () => {
-        if (!book || !userInput.trim()) return;
-
-        setIsGeneratingSummary(true);
-        setSummaryError('');
-
-        const userMessage: ConversationMessage = {
-            role: 'user',
-            content: userInput.trim(),
-            timestamp: new Date().toISOString(),
-        };
-
-        const updatedConversation = [...conversation, userMessage];
-        setConversation(updatedConversation);
-        setUserInput('');
-
-        try {
-            const response = await fetch(`/api/books/${book.id}/summary`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: book.title,
-                    category: book.category,
-                    review: book.review,
-                    userMessage: userInput.trim(),
-                    conversationHistory: updatedConversation,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to generate response');
-            }
-
-            const data = await response.json();
-
-            const aiMessage: ConversationMessage = {
-                role: 'assistant',
-                content: data.message,
-                timestamp: new Date().toISOString(),
-            };
-
-            const finalConversation = [...updatedConversation, aiMessage];
-            setConversation(finalConversation);
-
-            // Update the book with the new conversation
-            const updatedBook: Book = {
-                ...book,
-                conversation: finalConversation,
-            };
-            await updateBook(book.id, updatedBook);
-            setBook(updatedBook);
-        } catch (error) {
-            console.error('Error generating response:', error);
-            setSummaryError('Failed to generate response. Please try again.');
-            // Remove the user message if AI failed
-            setConversation(conversation);
-        } finally {
-            setIsGeneratingSummary(false);
-        }
-    };
-
-    const handleClearHistory = async () => {
-        if (!book) return;
-
-        const confirmClear = window.confirm('Are you sure you want to clear the conversation history? This cannot be undone.');
-        if (!confirmClear) return;
-
-        try {
-            setConversation([]);
-
-            // Update the book to remove conversation
-            const updatedBook: Book = {
-                ...book,
-                conversation: [],
-            };
-            await updateBook(book.id, updatedBook);
-            setBook(updatedBook);
-        } catch (error) {
-            console.error('Error clearing conversation:', error);
-            alert('Failed to clear conversation. Please try again.');
-            // Restore conversation on error
-            setConversation(book.conversation || []);
-        }
-    };
-
-    const handleFetchGoogleBooks = async () => {
-        if (!book) return;
-
-        setIsLoadingGoogleBooks(true);
-        try {
-            const response = await fetch(`/api/books/google?q=${encodeURIComponent(book.title)}`);
-            if (!response.ok) throw new Error('Failed to fetch');
-
-            const data = await response.json();
-
-            if (data.found) {
-                setGoogleBooksInfo(data.info);
-
-                // Save to book
-                const updatedBook: Book = {
-                    ...book,
-                    googleBooksInfo: data.info,
-                };
-                await updateBook(book.id, updatedBook);
-                setBook(updatedBook);
-            }
-        } catch (error) {
-            console.error('Error fetching Google Books:', error);
-        } finally {
-            setIsLoadingGoogleBooks(false);
         }
     };
 
@@ -602,89 +412,6 @@ export default function BookDetailsPage() {
                                             </div>
                                         )}
 
-                                        {/* Google Books Information */}
-                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                                            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-                                                Google Books Information
-                                            </h3>
-                                            {googleBooksInfo ? (
-                                                <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                                                    {googleBooksInfo.authors && googleBooksInfo.authors.length > 0 && (
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Authors</p>
-                                                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                                                                {googleBooksInfo.authors.join(', ')}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                    {googleBooksInfo.publisher && (
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Publisher</p>
-                                                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                                                                {googleBooksInfo.publisher}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                    {googleBooksInfo.publishedDate && (
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Published Date</p>
-                                                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                                                                {googleBooksInfo.publishedDate}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                    {googleBooksInfo.pageCount && (
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Page Count</p>
-                                                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                                                                {googleBooksInfo.pageCount} pages
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                    {googleBooksInfo.description && (
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Description</p>
-                                                            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-4">
-                                                                {googleBooksInfo.description}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                    <div className="flex gap-2 pt-2">
-                                                        {googleBooksInfo.previewLink && (
-                                                            <a
-                                                                href={googleBooksInfo.previewLink}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors"
-                                                            >
-                                                                <ExternalLinkIcon size={12} />
-                                                                Preview
-                                                            </a>
-                                                        )}
-                                                        {googleBooksInfo.infoLink && (
-                                                            <a
-                                                                href={googleBooksInfo.infoLink}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-medium transition-colors"
-                                                            >
-                                                                <ExternalLinkIcon size={12} />
-                                                                More Info
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ) : isLoadingGoogleBooks ? (
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                                                    Loading...
-                                                </p>
-                                            ) : (
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                                                    No info available
-                                                </p>
-                                            )}
-                                        </div>
-
                                         {/* External Links */}
                                         {externalLinks.length > 0 && (
                                             <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
@@ -727,90 +454,6 @@ export default function BookDetailsPage() {
                                             </div>
                                         )}
 
-                                        {/* AI Discussion */}
-                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-16">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                                    Book Discussion
-                                                </h3>
-                                                {conversation.length === 0 && (
-                                                    <button
-                                                        onClick={handleStartDiscussion}
-                                                        disabled={isGeneratingSummary}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
-                                                    >
-                                                        <Sparkles size={16} />
-                                                        {isGeneratingSummary ? 'Starting...' : 'Discuss Book'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                            {summaryError && (
-                                                <div className="text-red-500 dark:text-red-400 text-sm mb-3">
-                                                    {summaryError}
-                                                </div>
-                                            )}
-                                            {conversation.length > 0 ? (
-                                                <div className="space-y-4">
-                                                    {/* Conversation Messages */}
-                                                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                                                        {conversation.map((message, index) => (
-                                                            <div
-                                                                key={index}
-                                                                className={`p-4 rounded-lg ${message.role === 'assistant'
-                                                                    ? 'bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700'
-                                                                    : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700'
-                                                                    }`}
-                                                            >
-                                                                <div className="flex items-center gap-2 mb-2">
-                                                                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                                                                        {message.role === 'assistant' ? 'AI' : 'You'}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 text-sm">
-                                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                                        {message.content}
-                                                                    </ReactMarkdown>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-
-                                                    {/* User Input */}
-                                                    <div className="space-y-2">
-                                                        <div className="flex gap-2">
-                                                            <input
-                                                                type="text"
-                                                                value={userInput}
-                                                                onChange={(e) => setUserInput(e.target.value)}
-                                                                onKeyDown={(e) => e.key === 'Enter' && !isGeneratingSummary && handleSendMessage()}
-                                                                placeholder="Continue the discussion..."
-                                                                disabled={isGeneratingSummary}
-                                                                className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm disabled:opacity-50"
-                                                            />
-                                                            <button
-                                                                onClick={handleSendMessage}
-                                                                disabled={isGeneratingSummary || !userInput.trim()}
-                                                                className="px-4 py-3 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-md hover:shadow-lg"
-                                                            >
-                                                                {isGeneratingSummary ? '...' : 'Send'}
-                                                            </button>
-                                                        </div>
-                                                        <button
-                                                            onClick={handleClearHistory}
-                                                            disabled={isGeneratingSummary}
-                                                            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            <Eraser size={14} />
-                                                            Clear History
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <p className="text-gray-500 dark:text-gray-400 italic text-sm">
-                                                    Click "Discuss Book" to start a conversation about this book.
-                                                </p>
-                                            )}
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -823,8 +466,6 @@ export default function BookDetailsPage() {
                                         Book Cover Image
                                     </label>
                                     <CoverPicker
-                                        bookTitle={title}
-                                        onSelectCover={handleSelectCover}
                                         onUploadFile={handleUploadFile}
                                         currentPreview={imagePreview}
                                     />

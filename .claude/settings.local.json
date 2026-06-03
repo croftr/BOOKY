@@ -35,7 +35,9 @@
       "Bash(xcopy:*)",
       "Bash(node fix-completion-order.js)",
       "Bash(npx tsx:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "PowerShell(\"library\",\"utils\",\"books\\\\google\",\"books\\\\covers\" | ForEach-Object { $p = \"C:\\\\Users\\\\rob\\\\projects\\\\booky\\\\src\\\\app\\\\api\\\\$_\"; \"{0}: {1}\" -f $_, \\(Test-Path -LiteralPath $p\\) })",
+      "PowerShell(npx tsc --noEmit)"
     ]
   }
 }

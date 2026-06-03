@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import BookList from '@/components/BookList';
 import Toolbar, { SortOption, SortDirection } from '@/components/Toolbar';
-import BookChatModal from '@/components/BookChatModal';
 import ImportDataModal from '@/components/ImportDataModal';
 import { Book } from '@/types/book';
 import { fetchBooks, updateBook } from '@/lib/api';
@@ -48,8 +47,7 @@ export default function Home() {
   const [totalBooks, setTotalBooks] = useState<number>(0);
   const pageSize = 30;
 
-  // Chat modal state
-  const [showChatModal, setShowChatModal] = useState(false);
+  // Cache of all books (used for export)
   const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [allBooksLoaded, setAllBooksLoaded] = useState(false);
 
@@ -162,15 +160,6 @@ export default function Home() {
       }
     }
   };
-
-  const handleOpenChat = useCallback(async () => {
-    try {
-      await loadAllBooks();
-      setShowChatModal(true);
-    } catch (error) {
-      alert('Failed to load books. Please try again.');
-    }
-  }, []);
 
   const handleExportData = async () => {
     try {
@@ -289,7 +278,6 @@ export default function Home() {
             onSortDirectionChange={setSortDirection}
             onSearchChange={handleSearchChange}
             bookCount={totalBooks}
-            onSummaryClick={handleOpenChat}
           />
         )}
 
@@ -315,13 +303,6 @@ export default function Home() {
             </div>
           </>
         )}
-
-        {/* Book Chat Modal */}
-        <BookChatModal
-          isOpen={showChatModal}
-          onClose={() => setShowChatModal(false)}
-          books={allBooks}
-        />
 
         {/* Import Data Modal */}
         <ImportDataModal

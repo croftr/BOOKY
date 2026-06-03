@@ -5,7 +5,7 @@ import StarRating from './StarRating';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState, memo } from 'react';
 
 interface BookItemProps {
@@ -44,8 +44,6 @@ export default memo(function BookItem({ book, onUpdate }: BookItemProps) {
         }
     };
 
-    const hasOngoingDiscussion = book.conversation && book.conversation.length > 0;
-
     return (
         <div
             onClick={() => router.push(`/details/${book.id}`)}
@@ -60,12 +58,6 @@ export default memo(function BookItem({ book, onUpdate }: BookItemProps) {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                         </span>
                         <span className="text-xs font-medium">Reading</span>
-                    </div>
-                )}
-                {hasOngoingDiscussion && (
-                    <div className="flex items-center gap-1.5 bg-linear-to-r from-purple-500 to-pink-500 text-white px-2.5 py-1 rounded-full shadow-lg">
-                        <MessageSquare size={14} />
-                        <span className="text-xs font-medium">Chat</span>
                     </div>
                 )}
             </div>

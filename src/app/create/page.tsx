@@ -20,7 +20,6 @@ export default function CreateBookPage() {
     const [title, setTitle] = useState('');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
-    const [selectedCoverUrl, setSelectedCoverUrl] = useState<string>('');
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [category, setCategory] = useState('');
@@ -50,15 +49,8 @@ export default function CreateBookPage() {
         }
     };
 
-    const handleSelectCover = (url: string) => {
-        setSelectedCoverUrl(url);
-        setImageFile(null);
-        setImagePreview(url);
-    };
-
     const handleUploadFile = (file: File) => {
         setImageFile(file);
-        setSelectedCoverUrl('');
         const reader = new FileReader();
         reader.onload = () => {
             setImagePreview(reader.result as string);
@@ -73,10 +65,7 @@ export default function CreateBookPage() {
         try {
             let imageUrl = '';
 
-            // Use selected cover URL if available, otherwise upload file
-            if (selectedCoverUrl) {
-                imageUrl = selectedCoverUrl;
-            } else if (imageFile) {
+            if (imageFile) {
                 // Compress image before uploading
                 const compressedFile = await compressImage(imageFile);
                 imageUrl = await uploadImage(compressedFile);
@@ -143,8 +132,6 @@ export default function CreateBookPage() {
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Book Cover Image</label>
                             <CoverPicker
-                                bookTitle={title}
-                                onSelectCover={handleSelectCover}
                                 onUploadFile={handleUploadFile}
                                 currentPreview={imagePreview}
                             />
