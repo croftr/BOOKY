@@ -12,7 +12,8 @@ Booky is a modern, full-stack book tracking application built with Next.js. It a
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4
 - **Runtime**: React 19
-- **Storage**: Vercel KV (Redis) for book data, Vercel Blob for images
+- **Storage**: AWS S3 (single versioned JSON object for book data; cover/review images under an `images/` prefix in the same bucket)
+- **Hosting**: Vercel (functions pinned to the `lhr1` London region to co-locate with the eu-west-2 S3 bucket)
 
 ## Key Project Structure
 
@@ -26,7 +27,7 @@ booky/
 │   │   │   │   ├── [id]/
 │   │   │   │   │   └── route.ts    # GET, PUT, DELETE by ID
 │   │   │   │   └── bulk/           # Bulk import
-│   │   │   └── upload/             # Image upload to Vercel Blob
+│   │   │   └── upload/             # Image upload to S3
 │   │   ├── create/                 # Book creation page
 │   │   ├── details/[id]/           # Book details page
 │   │   └── page.tsx                # Main library page
@@ -39,7 +40,7 @@ booky/
 │   │   └── Toolbar.tsx             # Search, filter, sort
 │   ├── lib/
 │   │   ├── api.ts                  # API client functions
-│   │   ├── redis.ts                # Vercel KV helper
+│   │   ├── storage.ts              # S3 storage client (local-file fallback in dev)
 │   │   └── importBooks.ts          # Import utilities
 │   ├── types/
 │   │   └── book.ts                 # TypeScript definitions
@@ -48,17 +49,18 @@ booky/
 ├── scripts/
 │   └── migrate-*.ts                # Migration scripts
 └── data/
-    └── books.json                  # Legacy file storage (migrated to KV)
+    └── books.json                  # Local dev storage (production uses S3)
 ```
 
 ## Important Patterns & Conventions
 
 ### Data Storage
 
-- **Books**: Stored in Vercel KV (Redis) with keys like `book:{id}`
-- **Book List**: Maintained as `books` key containing array of book IDs
-- **Images**: Stored in Vercel Blob storage
-- **Migration**: Scripts available to migrate from file storage to KV/Blob
+- **Books**: The entire library is stored as a single JSON object (`books-data-v1.json`) in AWS S3. Reads = one `GetObject`, writes = one `PutObject`. The dataset is small (a few hundred KB), so the API loads the whole document and filters/sorts/paginates in memory.
+- **Images**: Cover and review images are stored under the `images/` prefix in the same S3 bucket; the prefix is public-read so URLs load without signing.
+- **Durability**: Bucket versioning is enabled (every save is recoverable) with a lifecycle rule expiring noncurrent versions after 30 days.
+- **Dev fallback**: In development the storage client reads/writes `data/books.json` instead of S3 (set `FORCE_CLOUD=1` to exercise the S3 path locally).
+- **Migration**: `npm run migrate:s3` is a one-off that moved data + images off the retired Vercel Blob.
 
 ### Book Data Model
 
@@ -66,7 +68,7 @@ booky/
 interface Book {
   id: string;                    // Timestamp-based ID
   title: string;
-  image?: string;                // Vercel Blob URL
+  image?: string;                // S3 object URL
   rating?: number;               // 0-5 (0 = unrated)
   review?: string;
   category?: string;             // See categories.tsx
@@ -84,7 +86,7 @@ Defined in `src/config/categories.tsx`:
 - All API routes use Next.js App Router conventions
 - Error handling returns appropriate HTTP status codes
 - Book IDs are timestamp-based strings
-- Image uploads return blob URLs
+- Image uploads return S3 object URLs
 
 ### Component Patterns
 
@@ -107,17 +109,22 @@ npm run lint         # ESLint
 ### Migration Scripts
 
 ```bash
-npm run migrate              # Migrate books to KV
-npm run migrate:images       # Convert images to base64
-npm run migrate:blob         # Migrate images to Blob
+npm run migrate:s3           # One-off: moved data + images from Vercel Blob to S3
 ```
+
+(The older `migrate`, `migrate:images`, `migrate:blob`, and `sync:*` scripts target the
+retired Redis/Vercel Blob path and are kept only for historical reference.)
 
 ### Environment Variables
 
-Required in `.env.local`:
-- `KV_REST_API_URL`: Vercel KV REST API URL
-- `KV_REST_API_TOKEN`: Vercel KV REST API token
-- `BLOB_READ_WRITE_TOKEN`: Vercel Blob storage token
+Production credentials are set in the Vercel dashboard. Note: Vercel/Lambda reserve the
+`AWS_*` names, so use the `BOOKY_`-prefixed vars below (passed explicitly to the S3 client):
+- `BOOKY_S3_BUCKET`: bucket name (`robs-booky-data`)
+- `BOOKY_AWS_REGION`: bucket region (`eu-west-2`)
+- `BOOKY_AWS_ACCESS_KEY_ID` / `BOOKY_AWS_SECRET_ACCESS_KEY`: least-privilege IAM key (S3 read/write on the data object + `images/*`)
+
+Locally these are optional — the S3 client falls back to the default AWS credential chain
+(e.g. your configured `aws` CLI profile), and dev mode uses the local file unless `FORCE_CLOUD=1`.
 
 ## Common Tasks
 
@@ -127,14 +134,14 @@ Required in `.env.local`:
 2. Update TypeScript types in `src/types/book.ts` if needed
 3. Follow existing patterns for error handling and loading states
 4. Use Tailwind CSS for styling (dark mode first)
-5. Test with existing data in KV storage
+5. Test with existing data in S3 storage
 
 ### Working with the Database
 
-- Use `src/lib/redis.ts` for KV operations
+- Use `src/lib/storage.ts` for S3 operations
 - Always handle null cases (book not found)
 - Update the book list when adding/deleting books
-- Consider caching strategies for frequently accessed data
+- The whole library is read-modify-written as one document — keep that in mind for concurrent writes
 
 ### Styling Guidelines
 
@@ -149,14 +156,13 @@ Required in `.env.local`:
 Before making changes, review:
 - `src/types/book.ts` - Core data model
 - `src/lib/api.ts` - Client-side API calls
-- `src/lib/redis.ts` - Database operations
+- `src/lib/storage.ts` - S3 storage operations
 - `src/config/categories.tsx` - Category configuration
 - `README.md` - User-facing documentation
 
 ## Known Considerations
 
-- Image storage migrated from file system to Vercel Blob
-- Book data migrated from JSON files to Vercel KV
+- Storage history: local JSON files → Vercel KV/Blob → **AWS S3** (current)
 - Migration scripts are one-time use utilities
 - Pagination implemented (infinite scroll, 30 books per page)
 - Search, filter, and sort functionality in Toolbar
