@@ -49,14 +49,6 @@ export function validateImportData(
     existingTitlesMap.set(book.title.trim().toLowerCase(), book.id);
   });
 
-  // Create a set of existing completionOrder values
-  const existingCompletionOrders = new Set<number>();
-  existingBooks.forEach(book => {
-    if (book.completionOrder !== undefined && book.completionOrder !== null) {
-      existingCompletionOrders.add(book.completionOrder);
-    }
-  });
-
   // Validate each book
   booksToImport.forEach((book, index) => {
     // Check required fields
@@ -76,7 +68,9 @@ export function validateImportData(
       return;
     }
 
-    // Check for duplicate titles in existing books
+    // Check for duplicate titles in existing books (title is the unique key).
+    // completionOrder is intentionally NOT checked here — it is reassigned on
+    // import (see ImportDataModal), so an incoming value can never truly conflict.
     const normalizedTitle = book.title.trim().toLowerCase();
     if (existingTitlesMap.has(normalizedTitle)) {
       result.duplicates.push({
@@ -84,17 +78,6 @@ export function validateImportData(
         existingId: existingTitlesMap.get(normalizedTitle)!,
       });
       return;
-    }
-
-    // Check for conflicting completionOrder
-    if (book.completionOrder !== undefined && book.completionOrder !== null) {
-      if (existingCompletionOrders.has(book.completionOrder)) {
-        result.invalid.push({
-          book,
-          reason: `Completion order ${book.completionOrder} already exists`,
-        });
-        return;
-      }
     }
 
     // Book is valid

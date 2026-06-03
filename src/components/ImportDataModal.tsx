@@ -89,6 +89,8 @@ export default function ImportDataModal({ isOpen, onClose, onImportComplete }: I
           dateCompleted: bookToImport.dateCompleted ?? '',
           completionOrder,
           externalLinks: bookToImport.externalLinks ?? [],
+          reviewImages: bookToImport.reviewImages ?? [],
+          currentlyReading: bookToImport.currentlyReading ?? false,
         };
       });
 

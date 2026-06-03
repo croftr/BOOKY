@@ -146,32 +146,37 @@ export default function Home() {
     }
   }, []);
 
-  const loadAllBooks = async () => {
-    if (!allBooksLoaded) {
-      try {
-        const response = await fetchBooks({
-          limit: 1000, // Get all books
-        });
-        setAllBooks(response.items);
-        setAllBooksLoaded(true);
-      } catch (error) {
-        console.error('Error loading all books:', error);
-        throw error;
-      }
+  const loadAllBooks = async (): Promise<Book[]> => {
+    // Return the cached copy if we already have it (state is populated from a
+    // prior render in that case, so it's safe to read here).
+    if (allBooksLoaded) {
+      return allBooks;
+    }
+    try {
+      const response = await fetchBooks({
+        limit: 1000, // Get all books
+      });
+      setAllBooks(response.items);
+      setAllBooksLoaded(true);
+      return response.items;
+    } catch (error) {
+      console.error('Error loading all books:', error);
+      throw error;
     }
   };
 
   const handleExportData = async () => {
     try {
-      // Use cached books if available, otherwise fetch
-      await loadAllBooks();
+      // Use the returned books directly — reading the `allBooks` state here would
+      // see the pre-update (empty) value on the same tick that loadAllBooks sets it.
+      const books = await loadAllBooks();
 
       // Create export data with timestamp
       const exportData = {
         exportDate: new Date().toISOString(),
         version: '1.0',
-        totalBooks: allBooks.length,
-        books: allBooks,
+        totalBooks: books.length,
+        books,
       };
 
       // Convert to JSON string with pretty formatting
@@ -188,7 +193,7 @@ export default function Home() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      alert(`Successfully exported ${allBooks.length} books!`);
+      alert(`Successfully exported ${books.length} books!`);
     } catch (error) {
       console.error('Error exporting data:', error);
       alert('Failed to export data. Please try again.');
