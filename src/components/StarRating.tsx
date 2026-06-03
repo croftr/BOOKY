@@ -18,7 +18,9 @@ export default function StarRating({
 }: StarRatingProps) {
   const [hoverRating, setHoverRating] = useState(0);
 
-  const handleClick = (value: number) => {
+  const handleClick = (value: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!readonly && onChange) {
       onChange(value);
     }
@@ -48,7 +50,7 @@ export default function StarRating({
             <button
               key={value}
               type="button"
-              onClick={() => handleClick(value)}
+              onClick={(e) => handleClick(value, e)}
               onMouseEnter={() => handleMouseEnter(value)}
               onMouseLeave={handleMouseLeave}
               disabled={readonly}
