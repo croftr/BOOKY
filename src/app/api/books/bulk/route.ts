@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRedis } from '@/lib/redis';
+import { getStorage } from '@/lib/storage';
 import { Book } from '@/types/book';
 
 const BOOKS_KEY = 'books';
 
 async function readBooks(): Promise<Book[]> {
   try {
-    const redis = getRedis();
-    const data = await redis.get(BOOKS_KEY);
+    const storage = getStorage();
+    const data = await storage.get(BOOKS_KEY);
     if (!data) return [];
     return JSON.parse(data) as Book[];
   } catch (error) {
-    console.error('Error reading books from Redis:', error);
+    console.error('Error reading books from storage:', error);
     return [];
   }
 }
 
 async function writeBooks(books: Book[]): Promise<void> {
   try {
-    const redis = getRedis();
-    await redis.set(BOOKS_KEY, JSON.stringify(books));
+    const storage = getStorage();
+    await storage.set(BOOKS_KEY, JSON.stringify(books));
   } catch (error) {
-    console.error('Error writing books to Redis:', error);
+    console.error('Error writing books to storage:', error);
     throw error;
   }
 }

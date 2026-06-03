@@ -37,7 +37,14 @@
       "Bash(npx tsx:*)",
       "Bash(npx next build:*)",
       "PowerShell(\"library\",\"utils\",\"books\\\\google\",\"books\\\\covers\" | ForEach-Object { $p = \"C:\\\\Users\\\\rob\\\\projects\\\\booky\\\\src\\\\app\\\\api\\\\$_\"; \"{0}: {1}\" -f $_, \\(Test-Path -LiteralPath $p\\) })",
-      "PowerShell(npx tsc --noEmit)"
+      "PowerShell(npx tsc --noEmit)",
+      "Bash(aws sts *)",
+      "Bash(aws configure *)",
+      "Bash(aws s3 *)",
+      "Bash(npx tsc *)",
+      "Read(//c/Users/rob/**)",
+      "Read(//c/Users/rob/node_modules/@aws-sdk/**)",
+      "Bash(pwd -P)"
     ]
   }
 }
