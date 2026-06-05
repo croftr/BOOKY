@@ -36,7 +36,6 @@ export default function Home() {
   // Filter and sort states
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedRating, setSelectedRating] = useState<number>(0);
-  const [showCurrentlyReading, setShowCurrentlyReading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('completion');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -65,7 +64,7 @@ export default function Home() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedRating, showCurrentlyReading, sortBy, sortDirection, searchQuery]);
+  }, [selectedCategory, selectedRating, sortBy, sortDirection, searchQuery]);
 
   const loadBooks = useCallback(async (append: boolean = false) => {
     try {
@@ -78,7 +77,6 @@ export default function Home() {
       const response = await fetchBooks({
         category: selectedCategory || undefined,
         minRating: selectedRating > 0 ? selectedRating : undefined,
-        currentlyReading: showCurrentlyReading ? true : undefined,
         search: searchQuery.length >= 3 ? searchQuery : undefined,
         sortBy: sortOptionToApiField(sortBy),
         sortOrder: sortDirection,
@@ -105,7 +103,7 @@ export default function Home() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [selectedCategory, selectedRating, showCurrentlyReading, searchQuery, sortBy, sortDirection, currentPage, hasAnyBooks]);
+  }, [selectedCategory, selectedRating, searchQuery, sortBy, sortDirection, currentPage, hasAnyBooks]);
 
   // Load books whenever filter, sort, or pagination parameters change
   useEffect(() => {
@@ -275,8 +273,6 @@ export default function Home() {
             onCategoryChange={setSelectedCategory}
             selectedRating={selectedRating}
             onRatingChange={setSelectedRating}
-            showCurrentlyReading={showCurrentlyReading}
-            onShowCurrentlyReadingChange={setShowCurrentlyReading}
             sortBy={sortBy}
             onSortChange={setSortBy}
             sortDirection={sortDirection}

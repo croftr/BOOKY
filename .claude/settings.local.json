@@ -44,7 +44,11 @@
       "Bash(npx tsc *)",
       "Read(//c/Users/rob/**)",
       "Read(//c/Users/rob/node_modules/@aws-sdk/**)",
-      "Bash(pwd -P)"
+      "Bash(pwd -P)",
+      "WebFetch(domain:booky-murex.vercel.app)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
