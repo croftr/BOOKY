@@ -10,7 +10,8 @@ import StarRating from '@/components/StarRating';
 import ConfirmModal from '@/components/ConfirmModal';
 import CoverPicker from '@/components/CoverPicker';
 import Toggle from '@/components/Toggle';
-import { Pencil, X, Save, Trash2, ArrowLeft, ExternalLink as ExternalLinkIcon, Youtube, FileText, Link as LinkIcon, Plus } from 'lucide-react';
+import { Pencil, X, Save, Trash2, ArrowLeft, ExternalLink as ExternalLinkIcon, FileText, Link as LinkIcon, Plus } from 'lucide-react';
+import { Youtube } from '@/components/icons/Youtube';
 import { getCategoryConfig } from '@/config/categories';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -47,10 +48,6 @@ export default function BookDetailsPage() {
     const [newLinkTitle, setNewLinkTitle] = useState('');
     const [newLinkDescription, setNewLinkDescription] = useState('');
 
-    useEffect(() => {
-        loadBook();
-    }, [bookId]);
-
     const loadBook = async () => {
         try {
             setIsLoading(true);
@@ -75,6 +72,10 @@ export default function BookDetailsPage() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadBook();
+    }, [bookId]);
 
     const handleUploadFile = (file: File) => {
         setImageFile(file);

@@ -27,10 +27,6 @@ export default function CreateBookPage() {
     const [dateCompleted, setDateCompleted] = useState('');
     const [completionOrder, setCompletionOrder] = useState(1);
 
-    useEffect(() => {
-        loadBooks();
-    }, []);
-
     const loadBooks = async () => {
         try {
             setIsLoading(true);
@@ -48,6 +44,10 @@ export default function CreateBookPage() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        loadBooks();
+    }, []);
 
     const handleUploadFile = (file: File) => {
         setImageFile(file);
