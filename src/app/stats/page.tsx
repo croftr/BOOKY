@@ -237,29 +237,31 @@ export default function StatsPage() {
             </div>
             {monthlyStats.length > 0 ? (
               <div className="space-y-3">
-                {monthlyStats.map(stat => {
-                  const [year, month] = stat.month.split('-');
-                  const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-                  const maxCount = Math.max(...monthlyStats.map(s => s.count));
-                  const barWidth = (stat.count / maxCount) * 100;
+                {(() => {
+                  const maxCount = monthlyStats.reduce((max, s) => Math.max(max, s.count), 0);
+                  return monthlyStats.map(stat => {
+                    const [year, month] = stat.month.split('-');
+                    const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    const barWidth = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
 
-                  return (
-                    <div key={stat.month}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">{monthName}</span>
-                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {stat.count} {stat.count === 1 ? 'book' : 'books'}
-                        </span>
+                    return (
+                      <div key={stat.month}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{monthName}</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {stat.count} {stat.count === 1 ? 'book' : 'books'}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all"
+                            style={{ width: `${barWidth}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all"
-                          style={{ width: `${barWidth}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <p className="text-gray-500 dark:text-gray-400">No completion dates recorded yet.</p>
@@ -274,27 +276,29 @@ export default function StatsPage() {
             </div>
             {yearlyStats.length > 0 ? (
               <div className="space-y-3">
-                {yearlyStats.map(stat => {
-                  const maxCount = Math.max(...yearlyStats.map(s => s.count));
-                  const barWidth = (stat.count / maxCount) * 100;
+                {(() => {
+                  const maxCount = yearlyStats.reduce((max, s) => Math.max(max, s.count), 0);
+                  return yearlyStats.map(stat => {
+                    const barWidth = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
 
-                  return (
-                    <div key={stat.year}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">{stat.year}</span>
-                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {stat.count} {stat.count === 1 ? 'book' : 'books'}
-                        </span>
+                    return (
+                      <div key={stat.year}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{stat.year}</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {stat.count} {stat.count === 1 ? 'book' : 'books'}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all"
+                            style={{ width: `${barWidth}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all"
-                          style={{ width: `${barWidth}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <p className="text-gray-500 dark:text-gray-400">No completion dates recorded yet.</p>
@@ -309,32 +313,34 @@ export default function StatsPage() {
             </div>
             {categoryStats.length > 0 ? (
               <div className="space-y-3">
-                {categoryStats.map(stat => {
-                  const maxCount = Math.max(...categoryStats.map(s => s.count));
-                  const barWidth = (stat.count / maxCount) * 100;
+                {(() => {
+                  const maxCount = categoryStats.reduce((max, s) => Math.max(max, s.count), 0);
+                  return categoryStats.map(stat => {
+                    const barWidth = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
 
-                  return (
-                    <div key={stat.category}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400 truncate">{stat.category}</span>
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <span className="text-xs text-gray-500 dark:text-gray-500">
-                            ⭐ {stat.avgRating.toFixed(1)}
-                          </span>
-                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                            {stat.count}
-                          </span>
+                    return (
+                      <div key={stat.category}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-gray-600 dark:text-gray-400 truncate">{stat.category}</span>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              ⭐ {stat.avgRating.toFixed(1)}
+                            </span>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {stat.count}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-purple-600 dark:bg-purple-500 h-2 rounded-full transition-all"
+                            style={{ width: `${barWidth}%` }}
+                          />
                         </div>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-purple-600 dark:bg-purple-500 h-2 rounded-full transition-all"
-                          style={{ width: `${barWidth}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <p className="text-gray-500 dark:text-gray-400">No books added yet.</p>
